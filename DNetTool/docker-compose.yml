@@ -1,0 +1,8 @@
+version: '3'
+
+services:
+  dnettool:
+    image: dnettool
+    build:
+      context: .
+      dockerfile: DNetTool/Dockerfile
