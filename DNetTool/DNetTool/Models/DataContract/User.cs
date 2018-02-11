@@ -24,7 +24,9 @@ namespace DNetTool.Models.DataContract
 
         public string Password { get; set; }
 
+        public DateTime CreateDate { get; set; }
 
+         
         //Для своего identity
         public int? RoleId { get; set; }
 
