@@ -13,6 +13,8 @@ namespace DNetTool.Models.DataContract
 
         public string Name { get; set; }
 
+        public Role ParentRole { get; set; }
+
         public List<User> Users { get; set; }
 
         public Role()

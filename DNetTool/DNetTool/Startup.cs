@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Net.Sockets;
 using DNetTool.Models.DataContract;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
@@ -9,8 +10,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.SignalR;
-using DNetTool.Hubs;
 
 namespace DNetTool
 {
@@ -37,7 +36,7 @@ namespace DNetTool
                 });
 
             services.AddMvc();
-            services.AddSignalR();
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -56,11 +55,6 @@ namespace DNetTool
             app.UseStaticFiles();
 
             app.UseAuthentication();
-
-            app.UseSignalR(routes =>
-            {
-                routes.MapHub<ProcessingHub>("processing");
-            });
 
             app.UseMvc(routes =>
             {
