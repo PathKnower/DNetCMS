@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace DNetTool.Models.DataContract
+namespace DNetCMS.Models.DataContract
 {
     public class User
     {

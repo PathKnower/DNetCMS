@@ -1,6 +1,6 @@
 using System;
 
-namespace DNetTool.Models
+namespace DNetCMS.Models
 {
     public class ErrorViewModel
     {
