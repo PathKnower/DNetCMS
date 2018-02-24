@@ -1,0 +1,11 @@
+@model IEnumerable<DNetCMS.Models.DataContract.News>
+
+<h2>Новости: </h2>
+<div>
+    @foreach (var n in model)
+    {
+        <div>
+            <h2> @n.Header </h2>
+        </div>
+    }
+</div>

@@ -10,6 +10,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using DNetCMS.Interfaces;
+using DNetCMS.Repositories;
 
 namespace DNetCMS
 {
@@ -25,6 +27,7 @@ namespace DNetCMS
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+
             string connection = "User ID=postgres;Password=dNetTool;Host=localhost;Port=5432;Database=DNetTool;Pooling=true;";
 
             services.AddDbContext<ApplicationContext>(options => options.UseNpgsql(connection));
@@ -34,6 +37,9 @@ namespace DNetCMS
                 {
                     options.LoginPath = new Microsoft.AspNetCore.Http.PathString("/Account/Login");
                 });
+            
+            services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+            services.AddSingleton<IUnitOfWork, UnitOfWork>();
 
             services.AddMvc();
             

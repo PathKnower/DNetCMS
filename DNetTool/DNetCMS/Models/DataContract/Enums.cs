@@ -1,4 +1,4 @@
-namespace DNetTool.Models.DataContract
+namespace DNetCMS.Models.DataContract
 {
     public class Enums
     {

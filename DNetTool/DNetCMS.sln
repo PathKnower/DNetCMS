@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27130.2003
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DNetCMS", "DNetTool\DNetCMS.csproj", "{AA04DB31-9396-44A2-88F0-17E401BB80D5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DNetCMS", "DNetCMS\DNetCMS.csproj", "{AA04DB31-9396-44A2-88F0-17E401BB80D5}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DNetCMS_Processing", "DNetCMS Processing\DNetCMS_Processing.csproj", "{1E5C40CD-3BA9-4E1E-B52E-5E3B51DC79F2}"
 EndProject
