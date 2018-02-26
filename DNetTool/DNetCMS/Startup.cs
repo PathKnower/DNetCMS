@@ -17,20 +17,33 @@ namespace DNetCMS
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        IHostingEnvironment _env;
+
+        public Startup(IConfiguration configuration, IHostingEnvironment environment)
         {
+            //Base configure for start application
             Configuration = configuration;
+
+            _env = environment;
+
+
+
+            var builder = new ConfigurationBuilder().SetBasePath(_env.ContentRootPath);
+            builder.AddJsonFile("DNetSettings.json");
+
+            CmsConfiguration = builder.Build();
         }
 
         public IConfiguration Configuration { get; }
 
+        public IConfiguration CmsConfiguration { get; }
+
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            //string connection = "User ID=postgres;Password=dNetTool;Host=localhost;Port=5432;Database=DNetTool;Pooling=true;";
 
-            string connection = "User ID=postgres;Password=dNetTool;Host=localhost;Port=5432;Database=DNetTool;Pooling=true;";
-
-            services.AddDbContext<ApplicationContext>(options => options.UseNpgsql(connection));
+            services.AddDbContext<ApplicationContext>(options => options.UseNpgsql(Configuration["DbConnect"]));
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>
@@ -42,7 +55,6 @@ namespace DNetCMS
             services.AddSingleton<IUnitOfWork, UnitOfWork>();
 
             services.AddMvc();
-            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -69,5 +81,10 @@ namespace DNetCMS
                     template: "{controller=Home}/{action=Index}/{id?}");
             });            
         }
+
+        //public void SettingsFileCheck(string json)
+        //{
+
+        //}
     }
 }

@@ -1,0 +1,8 @@
+﻿{
+  "Database": {
+    "DatabaseProvider": "Postresql",
+    "ConnectionString": "User ID=postgres;Password=dNetTool;Host=localhost;Port=5432;Database=DNetTool;Pooling=true;"
+  }
+
+
+}

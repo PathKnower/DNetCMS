@@ -2,10 +2,11 @@
 
 <h2>Новости: </h2>
 <div>
-    @foreach (var n in model)
+    @foreach (var n in Model)
     {
         <div>
             <h2> @n.Header </h2>
+            <p> @n.Content.Substring(0, 100)</p>
         </div>
     }
 </div>

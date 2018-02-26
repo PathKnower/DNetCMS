@@ -11,15 +11,11 @@ namespace DNetCMS.Components
         public DynamNews(IUnitOfWork uow)
         {
             Database = uow;
-            //Database = new UnitOfWork();
         }
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            
-
-
-            return View();
+            return View(Database.News.GetAll());
         }
     }
 }

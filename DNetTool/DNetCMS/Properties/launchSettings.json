@@ -15,7 +15,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "DNetTool": {
+    "DNetCMS": {
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {
