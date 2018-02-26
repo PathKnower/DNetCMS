@@ -12,6 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using DNetCMS.Interfaces;
 using DNetCMS.Repositories;
+using Microsoft.Extensions.Logging;
 
 namespace DNetCMS
 {
@@ -43,14 +44,11 @@ namespace DNetCMS
         {
             //string connection = "User ID=postgres;Password=dNetTool;Host=localhost;Port=5432;Database=DNetTool;Pooling=true;";
 
-            services.AddDbContext<ApplicationContext>(options => options.UseNpgsql(Configuration["DbConnect"]));
+            services.AddDbContext<ApplicationContext>(options => options.UseNpgsql(CmsConfiguration.GetSection("Database")["ConnectionString"]));
 
-            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddCookie(options =>
-                {
-                    options.LoginPath = new Microsoft.AspNetCore.Http.PathString("/Account/Login");
-                });
-            
+            services.AddIdentity<User, Role>().AddEntityFrameworkStores<ApplicationContext>();
+
+
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddSingleton<IUnitOfWork, UnitOfWork>();
 
@@ -58,7 +56,7 @@ namespace DNetCMS
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory logger)
         {
             if (env.IsDevelopment())
             {
@@ -71,6 +69,9 @@ namespace DNetCMS
             }
 
             app.UseStaticFiles();
+
+            logger.AddConsole();
+            //logger.AddNLog();
 
             app.UseAuthentication();
 

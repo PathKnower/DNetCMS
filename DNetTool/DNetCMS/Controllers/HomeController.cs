@@ -4,8 +4,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using DNetCMS.Models;
 using DNetCMS.Models.DataContract;
+using DNetCMS.Models.ViewModels;
 
 namespace DNetCMS.Controllers
 {

@@ -1,6 +1,6 @@
 using System;
 
-namespace DNetCMS.Models
+namespace DNetCMS.Models.ViewModels
 {
     public class ErrorViewModel
     {

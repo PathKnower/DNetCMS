@@ -3,24 +3,17 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 
 namespace DNetCMS.Models.DataContract
 {
-    public class Role
+    public class Role : IdentityRole
     {
-        [Key]
-        public int Id { get; set; }
+        public Role() : base() { }
 
-        public string Name { get; set; }
+        public Role(string name) : base(name) { }
 
         public Role ParentRole { get; set; }
-
-        public List<User> Users { get; set; }
-
-        public Role()
-        {
-            Users = new List<User>();
-        }
 
     }
 }
