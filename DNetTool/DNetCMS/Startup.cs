@@ -12,6 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using DNetCMS.Interfaces;
 using DNetCMS.Repositories;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 
 namespace DNetCMS
@@ -46,7 +47,17 @@ namespace DNetCMS
 
             services.AddDbContext<ApplicationContext>(options => options.UseNpgsql(CmsConfiguration.GetSection("Database")["ConnectionString"]));
 
-            services.AddIdentity<User, Role>().AddEntityFrameworkStores<ApplicationContext>();
+            services.AddIdentity<User, IdentityRole>(options => 
+            {
+                options.Password.RequiredLength = 6;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireDigit = true;
+                options.Password.RequireLowercase = true;
+                options.Password.RequireUppercase = true;
+
+
+            })
+            .AddEntityFrameworkStores<ApplicationContext>();
 
 
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));

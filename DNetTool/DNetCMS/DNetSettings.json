@@ -1,7 +1,7 @@
 ﻿{
   "Database": {
     "DatabaseProvider": "Postresql",
-    "ConnectionString": "User ID=postgres;Password=dNetTool;Host=localhost;Port=5432;Database=DNetTool;Pooling=true;"
+    "ConnectionString": "User ID=wardef;Password=thezevs1;Host=localhost;Port=5432;Database=wardef;Pooling=true;"
   }
 
 
