@@ -9,6 +9,9 @@ namespace DNetCMS.Models.DataContract
 {
     public class ApplicationContext : IdentityDbContext<User>
     {
+        public DbSet<News> News { get; set; }
+
+        public DbSet<FileModel> Files { get; set; }
 
         public ApplicationContext(DbContextOptions<ApplicationContext> options)
            : base(options)
