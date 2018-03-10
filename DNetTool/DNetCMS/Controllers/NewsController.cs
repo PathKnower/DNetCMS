@@ -31,8 +31,7 @@ namespace DNetCMS.Controllers
 
             return View(db.News.ToArray());
         }
-
-        [HttpGet]
+        
         public IActionResult Create()
         {
             return View();
@@ -80,8 +79,6 @@ namespace DNetCMS.Controllers
 
             await db.News.AddAsync(news);
             await db.SaveChangesAsync();
-
-            //NewsChanged();
 
             return RedirectToAction("Index", routeValues: "Новость успешно добавлена.");
         }
