@@ -15,6 +15,8 @@ namespace DNetCMS.Models.DataContract
 
         public string Content { get; set; }
 
+        public User Author { get; set; }
+
         public FileModel Picture { get; set; }
 
         public DateTime CreateDate { get; set; }
