@@ -96,7 +96,6 @@ namespace DNetCMS.Controllers
             return View(model);
         }
 
-        [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> LogOff()
         {

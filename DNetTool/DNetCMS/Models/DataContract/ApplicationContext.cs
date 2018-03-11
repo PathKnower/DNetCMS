@@ -13,6 +13,8 @@ namespace DNetCMS.Models.DataContract
 
         public DbSet<FileModel> Files { get; set; }
 
+
+
         public ApplicationContext(DbContextOptions<ApplicationContext> options)
            : base(options)
         {

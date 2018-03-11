@@ -11,7 +11,7 @@ using System;
 namespace DNetCMS.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    [Migration("20180228125956_Initial")]
+    [Migration("20180310192528_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -20,6 +20,44 @@ namespace DNetCMS.Migrations
             modelBuilder
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn)
                 .HasAnnotation("ProductVersion", "2.0.1-rtm-125");
+
+            modelBuilder.Entity("DNetCMS.Models.DataContract.FileModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Name");
+
+                    b.Property<string>("Path");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Files");
+                });
+
+            modelBuilder.Entity("DNetCMS.Models.DataContract.News", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("AuthorId");
+
+                    b.Property<string>("Content");
+
+                    b.Property<DateTime>("CreateDate");
+
+                    b.Property<string>("Header");
+
+                    b.Property<int?>("PictureId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AuthorId");
+
+                    b.HasIndex("PictureId");
+
+                    b.ToTable("News");
+                });
 
             modelBuilder.Entity("DNetCMS.Models.DataContract.User", b =>
                 {
@@ -184,6 +222,17 @@ namespace DNetCMS.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens");
+                });
+
+            modelBuilder.Entity("DNetCMS.Models.DataContract.News", b =>
+                {
+                    b.HasOne("DNetCMS.Models.DataContract.User", "Author")
+                        .WithMany()
+                        .HasForeignKey("AuthorId");
+
+                    b.HasOne("DNetCMS.Models.DataContract.FileModel", "Picture")
+                        .WithMany()
+                        .HasForeignKey("PictureId");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
