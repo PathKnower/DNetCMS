@@ -1,21 +1,25 @@
-using Microsoft.AspNetCore.Mvc;
+using System.Linq;
 using System.Threading.Tasks;
-using DNetCMS.Interfaces;
+
+using Microsoft.AspNetCore.Mvc;
+
+using DNetCMS.Models.DataContract;
+
 
 namespace DNetCMS.Components
 {
     public class DynamNews : ViewComponent
     {
-        IUnitOfWork Database;
+        ApplicationContext Database;
 
-        public DynamNews(IUnitOfWork uow)
+        public DynamNews(ApplicationContext context)
         {
-            Database = uow;
+            Database = context;
         }
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            return View(Database.News.GetAll());
+            return View(Database.News.ToArray());
         }
     }
 }

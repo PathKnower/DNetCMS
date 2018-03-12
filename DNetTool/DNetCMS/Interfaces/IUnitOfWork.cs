@@ -1,21 +1,21 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using System.Threading;
-using DNetCMS.Models.DataContract;
+//using System;
+//using System.Collections.Generic;
+//using System.Threading.Tasks;
+//using System.Threading;
+//using DNetCMS.Models.DataContract;
 
-namespace DNetCMS.Interfaces
-{
-    public interface IUnitOfWork : IDisposable
-    {
-        IRepository<News> News { get; }
+//namespace DNetCMS.Interfaces
+//{
+//    public interface IUnitOfWork : IDisposable
+//    {
+//        IRepository<News> News { get; }
 
-        IRepository<User> Users { get; } 
+//        IRepository<FileModel> Files { get; } 
 
-        #region Methods
-        int SaveChanges();
-        Task<int> SaveChangesAsync();
-        Task<int> SaveChangesAsync(CancellationToken cancellationToken);
-        #endregion
-    }
-}
+//        #region Methods
+//        int SaveChanges();
+//        Task<int> SaveChangesAsync();
+//        Task<int> SaveChangesAsync(CancellationToken cancellationToken);
+//        #endregion
+//    }
+//}

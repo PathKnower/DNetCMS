@@ -49,6 +49,8 @@ namespace DNetCMS.Modules.Processing
                 Name = file.FileName
             };
 
+            //TODO: реаргонизовать хранение на сервере через хэш структуру
+
             switch (fileType)
             {
                 case Enums.FileType.Document:

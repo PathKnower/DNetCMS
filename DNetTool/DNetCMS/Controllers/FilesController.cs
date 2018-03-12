@@ -8,22 +8,25 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 
+using Microsoft.Extensions.Logging;
+
 using DNetCMS.Models.DataContract;
 using DNetCMS.Modules.Processing;
 using DNetCMS.Models.ViewModels;
 
 namespace DNetCMS.Controllers
 {
-    public class FileController : Controller
+    public class FilesController : Controller
     {
-        ApplicationContext db;
-        IHostingEnvironment appEnvironment;
-
-
-        public FileController(ApplicationContext context, IHostingEnvironment environment)
+        private readonly ApplicationContext db;
+        private readonly IHostingEnvironment appEnvironment;
+        private readonly ILogger<FilesController> _logger;
+        
+        public FilesController(ApplicationContext context, IHostingEnvironment environment, ILogger<FilesController> logger)
         {
             db = context;
             appEnvironment = environment;
+            _logger = logger;
         }
 
         public IActionResult Index(string message = "")
@@ -32,7 +35,7 @@ namespace DNetCMS.Controllers
 
             return View();
         }
-        
+            
         public IActionResult UploadFile()
         {
             return View();

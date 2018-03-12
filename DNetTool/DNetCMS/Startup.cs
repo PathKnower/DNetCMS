@@ -3,17 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Net.Sockets;
-using DNetCMS.Models.DataContract;
+
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using DNetCMS.Interfaces;
-using DNetCMS.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
+
+using DNetCMS.Models.DataContract;
 
 namespace DNetCMS
 {
@@ -27,8 +27,6 @@ namespace DNetCMS
             Configuration = configuration;
 
             _env = environment;
-
-
 
             var builder = new ConfigurationBuilder().SetBasePath(_env.ContentRootPath);
             builder.AddJsonFile("DNetSettings.json");
@@ -60,8 +58,11 @@ namespace DNetCMS
             .AddEntityFrameworkStores<ApplicationContext>();
 
 
-            services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-            services.AddSingleton<IUnitOfWork, UnitOfWork>();
+
+            //services.AddScoped(typeof(IRepository<>), typeof(Repository<>)); 
+            //services.AddSingleton<IUnitOfWork, UnitOfWork>();
+
+            services.AddTransient(provider => CmsConfiguration); //Добавление конфигурации в зависимости
 
             services.AddMvc();
         }
