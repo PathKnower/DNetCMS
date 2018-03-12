@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Http;
 using DNetCMS.Models.DataContract;
 
 using SixLabors.ImageSharp;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace DNetCMS.Modules.Processing
 {
@@ -42,30 +44,43 @@ namespace DNetCMS.Modules.Processing
         {
             if (file == null)
                 return false;
-
-            FileModel result = new FileModel
-            {
-                FileType = (int)fileType,
-                Name = file.FileName
-            };
-
-            //TODO: реаргонизовать хранение на сервере через хэш структуру
+            
+            string hash = GetHashFromFile(file.OpenReadStream());
+            string dir1, dir2;
 
             switch (fileType)
             {
                 case Enums.FileType.Document:
-                    result.Path = "/Documents/" + file.FileName;
+                    dir1 = rootPath + "/Documents/";
                     break;
                 case Enums.FileType.Picture:
-                    result.Path = "/Images/" + file.FileName;
+                    dir1 = rootPath + "/Picture/";
                     break;
                 case Enums.FileType.ToStore:
                 default:
-                    result.Path = "/Storage/" + file.FileName;
+                    dir1 = rootPath + "/Storage/";
                     break;
             }
+            
+            dir1 += $"{hash.Substring(0, 2)}";
+            dir2 = $"{dir1}/{hash.Substring(2, 2)}/";
 
-            using (var fileStream = new FileStream(rootPath+ result.Path, FileMode.Create))
+            if (!Directory.Exists(dir1))
+            {
+                Directory.CreateDirectory(dir1);
+                Directory.CreateDirectory(dir2);
+            }
+            else if (!Directory.Exists(dir2))
+                Directory.CreateDirectory(dir2);
+
+            FileModel result = new FileModel
+            {
+                FileType = (int)fileType,
+                Name = file.FileName,
+                Path = dir2 + file.FileName
+            };
+
+            using (var fileStream = new FileStream(rootPath + result.Path, FileMode.Create))
             {
                 await file.CopyToAsync(fileStream);
             }
@@ -82,7 +97,7 @@ namespace DNetCMS.Modules.Processing
         /// <param name="path"></param>
         /// <param name="rootPath"></param>
         /// <returns></returns>
-        internal static async Task<bool> RemoveFile(string path, string rootPath)
+        internal static bool RemoveFile(string path, string rootPath)
         {
             try
             {
@@ -169,6 +184,24 @@ namespace DNetCMS.Modules.Processing
             {
                 return false;
             }
+        }
+
+        /// <summary>
+        /// Get hash from file stream by SHA1 alghoritm
+        /// </summary>
+        /// <param name="fileStream">File Stream</param>
+        /// <returns></returns>
+        internal static string GetHashFromFile(Stream fileStream)
+        {
+            var hash = SHA1.Create().ComputeHash(fileStream);
+            var sb = new StringBuilder(hash.Length * 2);
+
+            foreach (byte b in hash)
+            {
+                sb.Append(b.ToString("X2"));
+            }
+
+            return sb.ToString();
         }
     }
 }

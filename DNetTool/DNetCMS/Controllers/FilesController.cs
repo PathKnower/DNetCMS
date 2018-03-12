@@ -93,7 +93,7 @@ namespace DNetCMS.Controllers
             if (file == null)
                 return NotFound("Файл не найден.");
 
-            bool success = await FileProcessing.RemoveFile(file.Path, appEnvironment.WebRootPath);
+            bool success = FileProcessing.RemoveFile(file.Path, appEnvironment.WebRootPath);
 
             if(success)
             {
