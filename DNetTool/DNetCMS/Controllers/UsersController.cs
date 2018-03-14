@@ -26,6 +26,9 @@ namespace DNetCMS.Controllers
         }
 
         public IActionResult Create() => View();
+        
+        //TODO: Переписать логику управления пользователями
+
 
         [HttpPost]
         public async Task<IActionResult> Create(CreateUserViewModel model)
