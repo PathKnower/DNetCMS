@@ -17,8 +17,8 @@ namespace DNetCMS.Models.DataContract
 
         public DateTime CreateDate { get; set; }
 
-        public int Age { get; set; }
+        public DateTime DateOfBirth { get; set; }
 
-        public FileModel Avatar { get; set; }
+        public FileModel Avatar { get; set; } 
     }
 }

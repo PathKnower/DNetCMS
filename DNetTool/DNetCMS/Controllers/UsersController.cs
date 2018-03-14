@@ -32,7 +32,7 @@ namespace DNetCMS.Controllers
         {
             if (ModelState.IsValid)
             {
-                User user = new User { Email = model.Email, UserName = model.Email, Age = model.Age };
+                User user = new User { Email = model.Email, UserName = model.Email };
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
@@ -56,7 +56,7 @@ namespace DNetCMS.Controllers
             {
                 return NotFound();
             }
-            EditUserViewModel model = new EditUserViewModel { Id = user.Id, Email = user.Email, Age = user.Age };
+            EditUserViewModel model = new EditUserViewModel { Id = user.Id, Email = user.Email };
             return View(model);
         }
 
@@ -70,7 +70,6 @@ namespace DNetCMS.Controllers
                 {
                     user.Email = model.Email;
                     user.UserName = model.Email;
-                    user.Age = model.Age;
 
                     var result = await _userManager.UpdateAsync(user);
                     if (result.Succeeded)

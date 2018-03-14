@@ -47,7 +47,7 @@ namespace DNetCMS.Controllers
             if (model.File == null)
                 return View(model);
 
-            bool result;
+            int result;
 
             if (string.IsNullOrEmpty(model.TargetUse))
                 result =  await FileProcessing.UploadFile(model.File, appEnvironment.WebRootPath, db);
@@ -69,6 +69,12 @@ namespace DNetCMS.Controllers
                 }
 
                 result = await FileProcessing.UploadFile(model.File, fileType, appEnvironment.WebRootPath, db);
+            }
+
+            if(result >= 0)
+            {
+                ModelState.AddModelError("CommonMessage", " Непредвиденная ошибка при загрузке аватара.");
+                return View(model);
             }
 
             return RedirectToAction("Index", routeValues: "Файл загружен успешно.");

@@ -9,8 +9,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
 
 using DNetCMS.Models.DataContract;
-using DNetCMS.Models.ViewModels;
 using DNetCMS.Models.ViewModels.Account;
+using DNetCMS.Modules.Processing;
+using Microsoft.AspNetCore.Hosting;
 
 namespace DNetCMS.Controllers
 {
@@ -18,13 +19,15 @@ namespace DNetCMS.Controllers
     public class AccountController : Controller
     {
         private readonly UserManager<User> _userManager;
-        private readonly SignInManager<User> _signInManager;
+        private readonly ApplicationContext _db;
+        private readonly IHostingEnvironment _appEnvironment;
         private readonly ILogger<AccountController> _logger;
 
-        public AccountController(UserManager<User> userManager, SignInManager<User> signInManager, ILogger<AccountController> logger)
+        public AccountController(UserManager<User> userManager, ApplicationContext context, IHostingEnvironment environment, ILogger<AccountController> logger)
         {
             _userManager = userManager;
-            _signInManager = signInManager;
+            _db = context;
+            _appEnvironment = environment;
             _logger = logger;
         }
 
@@ -53,9 +56,9 @@ namespace DNetCMS.Controllers
         }
 
         [HttpPost]
-        private async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
+        public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
         {
-            _logger.LogInformation("Change password action started");
+           // _logger.LogInformation("Change password action started");
             if (!ModelState.IsValid)
             {
                 //var message = GetMessageErrors(ModelState);
@@ -88,7 +91,56 @@ namespace DNetCMS.Controllers
             return RedirectToAction("Index");
         }
 
-        
+        [HttpPost]
+        public async Task<IActionResult> ChangeUserInfo(ChangeUserInfoViewModel model)
+        {
+           // _logger.LogInformation("Change password action started");
+            if (!ModelState.IsValid)
+            {
+                //var message = GetMessageErrors(ModelState);
+                // _logger.LogInformation("Incoming model is not valid: {0}", message);
+                return BadRequest(ModelState);
+            }
+
+            var user = await _userManager.FindByNameAsync(User.Identity.Name);
+
+            if(user == null)
+            {
+                return NotFound("Пользователь не найден.");
+            }
+
+            user.FirstName = model.FirstName;
+            user.LastName = model.LastName;
+            user.DateOfBirth = model.DateOfBirth;
+
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ChangeAvatar(ChangeAvatarViewModel model)
+        {
+            // _logger.LogInformation("Change password action started");
+            if (!ModelState.IsValid)
+            {
+                //var message = GetMessageErrors(ModelState);
+                // _logger.LogInformation("Incoming model is not valid: {0}", message);
+                return BadRequest(ModelState);
+            }
+
+            var user = await _userManager.FindByNameAsync(User.Identity.Name);
+
+            if (user == null)
+            {
+                return NotFound("Пользователь не найден.");
+            }
+
+            int id = await FileProcessing.UploadFile(model.NewAvatar, Enums.FileType.Picture, _appEnvironment.WebRootPath, _db);
+
+            user.Avatar = await _db.Files.FindAsync(id);
+            await _userManager.UpdateAsync(user);
+
+            return RedirectToAction("Index");
+        }
 
     }
 }

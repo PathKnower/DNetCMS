@@ -25,7 +25,7 @@ namespace DNetCMS.Modules.Processing
         /// <param name="rootPath">Application root path</param>
         /// <param name="db">Database instance</param>
         /// <returns>Call result</returns>
-        internal static async Task<bool> UploadFile(IFormFile file, string rootPath, ApplicationContext db)
+        internal static async Task<int> UploadFile(IFormFile file, string rootPath, ApplicationContext db)
         {
             Enums.FileType fileType = GetFileType(file);
 
@@ -40,10 +40,10 @@ namespace DNetCMS.Modules.Processing
         /// <param name="rootPath">Application root path</param>
         /// <param name="db">Database instance</param>
         /// <returns>Success of operation</returns>
-        internal static async Task<bool> UploadFile(IFormFile file, Enums.FileType fileType, string rootPath, ApplicationContext db)
+        internal static async Task<int> UploadFile(IFormFile file, Enums.FileType fileType, string rootPath, ApplicationContext db)
         {
             if (file == null)
-                return false;
+                return -1;
             
             string hash = GetHashFromFile(file.OpenReadStream());
             string dir1, dir2;
@@ -88,7 +88,7 @@ namespace DNetCMS.Modules.Processing
             await db.Files.AddAsync(result);
             await db.SaveChangesAsync();
 
-            return true;
+            return result.Id;
         }
 
         /// <summary>
