@@ -15,7 +15,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace DNetCMS.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    [Authorize(Policy = "WriterAccess")]
     public class NewsController : Controller
     {
         ApplicationContext db;

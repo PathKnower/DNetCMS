@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DNetCMS.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    [Authorize(Policy = "AdminAccess")]
     public class UsersController : Controller
     {
         UserManager<User> _userManager;

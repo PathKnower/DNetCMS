@@ -13,9 +13,11 @@ using Microsoft.Extensions.Logging;
 using DNetCMS.Models.DataContract;
 using DNetCMS.Modules.Processing;
 using DNetCMS.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DNetCMS.Controllers
 {
+    [Authorize(Policy = "WriterAccess")]
     public class FilesController : Controller
     {
         private readonly ApplicationContext db;

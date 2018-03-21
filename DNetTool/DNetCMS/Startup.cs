@@ -29,7 +29,7 @@ namespace DNetCMS
             _env = environment;
 
             var builder = new ConfigurationBuilder().SetBasePath(_env.ContentRootPath);
-            builder.AddJsonFile("DNetSettings.json");
+            builder.AddJsonFile("DNetSettings.json", false, true);
 
             CmsConfiguration = builder.Build();
         }
@@ -52,17 +52,18 @@ namespace DNetCMS
                 options.Password.RequireDigit = true;
                 options.Password.RequireLowercase = true;
                 options.Password.RequireUppercase = true;
-
-
             })
             .AddEntityFrameworkStores<ApplicationContext>();
 
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("AdminAccess", policy => policy.RequireClaim("AccessLevel", "Администратор"));
+                options.AddPolicy("ModeratorAccess", policy => policy.RequireClaim("AccessLevel", "Администратор", "Модератор"));
+                options.AddPolicy("WriterAccess", policy => policy.RequireClaim("AccessLevel", "Администратор", "Модератор", "Редактор"));
+            });
+            
 
-
-            //services.AddScoped(typeof(IRepository<>), typeof(Repository<>)); 
-            //services.AddSingleton<IUnitOfWork, UnitOfWork>();
-
-            services.AddTransient(provider => CmsConfiguration); //Добавление конфигурации в зависимости
+            services.AddSingleton(provider => CmsConfiguration); //Добавление конфигурации в зависимости
 
             services.AddMvc();
         }
