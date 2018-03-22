@@ -3,11 +3,10 @@
     "DatabaseProvider": "Postresql",
     "ConnectionString": "User ID=wardef;Password=thezevs1;Host=localhost;Port=5432;Database=DNetCMS;Pooling=true;"
   },
-  "Roles": {
-    "ManagerRoles": [ "Role1", "Role2", "Role3" ],
-    "Level_1_Access" :  [ "Writer" ]
+  "Views": {
+    "BaseViewsPath": "/Views/",
+    "StaticViews": [
+      { "Name": "", "Path":  "", "Route": "" }
+    ]
   }
-
-
-
 }

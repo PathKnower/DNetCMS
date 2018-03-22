@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Authorization;
 
-namespace DNetCMS.Attributes
+namespace DNetCMS.Extensions
 {
     public class CmsRoleHandler : AuthorizationHandler<CmsRoleRequirement>
     {

@@ -14,6 +14,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 
 using DNetCMS.Models.DataContract;
+using Microsoft.AspNetCore.Mvc.Razor;
+using DNetCMS.Extensions;
 
 namespace DNetCMS
 {
@@ -64,6 +66,11 @@ namespace DNetCMS
             
 
             services.AddSingleton(provider => CmsConfiguration); //Добавление конфигурации в зависимости
+
+            services.Configure<RazorViewEngineOptions>(options =>
+            {
+                //options.ViewLocationExpanders.Add(new CMSViewLocator(CmsConfiguration));
+            });
 
             services.AddMvc();
         }

@@ -13,7 +13,7 @@ namespace DNetCMS.Models.DataContract
 
         public DbSet<FileModel> Files { get; set; }
 
-
+        public DbSet<StaticView> StaticViews { get; set; }
 
         public ApplicationContext(DbContextOptions<ApplicationContext> options)
            : base(options)

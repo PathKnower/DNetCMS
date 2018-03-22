@@ -7,7 +7,7 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace DNetCMS.Attributes
+namespace DNetCMS.Extensions
 {
     public class CmsRoleRequirement : IAuthorizationRequirement
     {

@@ -30,6 +30,11 @@ namespace DNetCMS
             webHost.Run();
         }
 
+        public static IWebHost BuildWebHost(string[] args) =>
+            WebHost.CreateDefaultBuilder(args)
+                .UseStartup<Startup>()
+                .Build();
+
         //public static IWebHostBuilder CreateDefaultBuilder(string[] args)
         //{
         //    var builder = new WebHostBuilder()
@@ -81,9 +86,6 @@ namespace DNetCMS
         //    return builder;
         //}
 
-        public static IWebHost BuildWebHost(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup>()
-                .Build();
+
     }
 }
