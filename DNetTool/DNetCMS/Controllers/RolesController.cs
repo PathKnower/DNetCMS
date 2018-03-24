@@ -82,10 +82,10 @@ namespace DNetCMS.Controllers
                 foreach (var error in result.Errors)
                     ModelState.AddModelError(string.Empty, error.Description);
 
-            result = await _roleManager.AddClaimAsync(role, new System.Security.Claims.Claim("AccessLevel", model.SelectedAccessLevel));
+            result = await _roleManager.AddClaimAsync(role, new Claim("AccessLevel", model.SelectedAccessLevel));
             if(!result.Succeeded)
             {
-                //TODO: Придумать способ сообщить о проблеме пользователю UPD: Возможно через сессию или TempData
+                HttpContext.Items["RoleError"] = "Не удалось добавить к роли выбранный уровень доступа.";
             }   
 
             return RedirectToAction("Index");
@@ -120,7 +120,7 @@ namespace DNetCMS.Controllers
             IdentityResult result = await _roleManager.AddClaimAsync(role, new Claim("AccessLevel", model.SelectedAccessLevel));
             if (!result.Succeeded)
             {
-                //TODO: Придумать способ сообщить о проблеме пользователю UPD: Возможно через сессию или TempData
+                HttpContext.Items["RoleError"] = "Не удалось добавить к роли выбранный уровень доступа.";
             }
 
             return RedirectToAction("Index");

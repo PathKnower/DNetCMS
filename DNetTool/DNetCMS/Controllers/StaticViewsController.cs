@@ -87,7 +87,7 @@ namespace DNetCMS.Controllers
                 await db.StaticViews.AddAsync(view);
                 await db.SaveChangesAsync();
             }
-
+            HttpContext.Items["Success"] = "";
             return RedirectToAction("Index");
         }
 
@@ -141,7 +141,7 @@ namespace DNetCMS.Controllers
                 db.StaticViews.Update(view);
                 await db.SaveChangesAsync();
             }
-
+            HttpContext.Items["Success"] = "";
             return RedirectToAction("Index");
         }
 
@@ -175,8 +175,8 @@ namespace DNetCMS.Controllers
 
             db.StaticViews.Remove(view);
             await db.SaveChangesAsync();
-            //TODO: Написать средство общения с пользователем.
 
+            HttpContext.Items["Success"] = "";
             return RedirectToAction("Index");
         }
     }

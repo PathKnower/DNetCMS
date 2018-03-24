@@ -35,8 +35,7 @@ namespace DNetCMS.Controllers
         {
             return View();
         }
-
-        //TODO: написать логику пользователей.
+        
 
         public IActionResult ChangePassword()
         {

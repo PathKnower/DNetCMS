@@ -39,6 +39,7 @@ namespace DNetCMS.Controllers
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
+                    HttpContext.Items["Success"] = "Пользователь успешно создан.";
                     return RedirectToAction("Index");
                 }
                 else
@@ -77,6 +78,7 @@ namespace DNetCMS.Controllers
                     var result = await _userManager.UpdateAsync(user);
                     if (result.Succeeded)
                     {
+                        HttpContext.Items["Success"] = "Изменения успешно сохранены.";
                         return RedirectToAction("Index");
                     }
                     else
@@ -99,6 +101,8 @@ namespace DNetCMS.Controllers
             {
                 IdentityResult result = await _userManager.DeleteAsync(user);
             }
+
+            HttpContext.Items["Success"] = "Пользователь успешно удален.";
             return RedirectToAction("Index");
         }
 

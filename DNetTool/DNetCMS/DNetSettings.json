@@ -4,9 +4,7 @@
     "ConnectionString": "User ID=wardef;Password=thezevs1;Host=localhost;Port=5432;Database=DNetCMS;Pooling=true;"
   },
   "Views": {
-    "BaseViewsPath": "/Views/",
-    "StaticViews": [
-      { "Name": "", "Path":  "", "Route": "" }
-    ]
+    "OverrideBaseViews":  "true",
+    "NewBaseViewsPath": "/Views/"
   }
 }

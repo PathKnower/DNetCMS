@@ -15,6 +15,8 @@ namespace DNetCMS.Models.DataContract
 
         public DbSet<StaticView> StaticViews { get; set; }
 
+        public DbSet<BaseViewOverride> ViewOverrides { get; set; }
+
         public ApplicationContext(DbContextOptions<ApplicationContext> options)
            : base(options)
         {
