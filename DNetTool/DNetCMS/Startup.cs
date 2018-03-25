@@ -16,6 +16,7 @@ using Microsoft.Extensions.Logging;
 using DNetCMS.Models.DataContract;
 using Microsoft.AspNetCore.Mvc.Razor;
 using DNetCMS.Extensions;
+using DNetCMS.Interfaces;
 
 namespace DNetCMS
 {
@@ -63,13 +64,14 @@ namespace DNetCMS
                 options.AddPolicy("ModeratorAccess", policy => policy.RequireClaim("AccessLevel", "Администратор", "Модератор"));
                 options.AddPolicy("WriterAccess", policy => policy.RequireClaim("AccessLevel", "Администратор", "Модератор", "Редактор"));
             });
-            
 
+            
             services.AddSingleton(provider => CmsConfiguration); //Добавление конфигурации в зависимости
+            services.AddSingleton<ICacheStore, CacheStore>(); //Сервис хранения кэшированных данных 
 
             services.Configure<RazorViewEngineOptions>(options =>
             {
-                //options.ViewLocationExpanders.Add(new CMSViewLocator(CmsConfiguration));
+                options.ViewLocationExpanders.Add(new CMSViewLocator(CmsConfiguration));
             });
 
             services.AddMvc();

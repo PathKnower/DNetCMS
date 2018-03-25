@@ -5,6 +5,6 @@
   },
   "Views": {
     "OverrideBaseViews":  "true",
-    "NewBaseViewsPath": "/Views/"
+    "NewBaseViewsPath": "/NewViews/"
   }
 }
