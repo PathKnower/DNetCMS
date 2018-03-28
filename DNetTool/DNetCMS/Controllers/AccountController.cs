@@ -50,7 +50,7 @@ namespace DNetCMS.Controllers
 
         public IActionResult ChangeUserInfo()
         {
-            //Changge props like FirstName LastName Age and etc
+            //Changge props like FirstName LastName Age and etc 
             return View();
         }
 

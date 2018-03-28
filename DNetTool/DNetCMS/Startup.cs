@@ -67,12 +67,12 @@ namespace DNetCMS
 
             
             services.AddSingleton(provider => CmsConfiguration); //Добавление конфигурации в зависимости
-            services.AddSingleton<ICacheStore, CacheStore>(); //Сервис хранения кэшированных данных 
+            services.AddScoped<ICacheStore, CacheStore>(); //Сервис хранения кэшированных данных 
 
-            services.Configure<RazorViewEngineOptions>(options =>
-            {
-                options.ViewLocationExpanders.Add(new CMSViewLocator(CmsConfiguration));
-            });
+//            services.Configure<RazorViewEngineOptions>(options =>
+//            {
+//                options.ViewLocationExpanders.Add(new CMSViewLocator(CmsConfiguration));
+//            });
 
             services.AddMvc();
         }

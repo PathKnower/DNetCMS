@@ -4,18 +4,22 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+
+using DNetCMS.Extensions;
+using DNetCMS.Interfaces;
 using DNetCMS.Models.DataContract;
 using DNetCMS.Models.ViewModels;
 
 namespace DNetCMS.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : CmsController
     {
         ApplicationContext db;
+        private ICacheStore _cacheStore;
 
-        public HomeController(ApplicationContext context)
+        public HomeController(ICacheStore cacheStore) : base(cacheStore)
         {
-            db = context;
+            _cacheStore = cacheStore;
         }
 
         public IActionResult Index()
