@@ -20,36 +20,46 @@ namespace DNetCMS.Controllers
     {
         private readonly UserManager<User> _userManager;
         private readonly ApplicationContext _db;
+        private readonly FileProcessing _fileProcessing;
         private readonly IHostingEnvironment _appEnvironment;
         private readonly ILogger<AccountController> _logger;
 
-        public AccountController(UserManager<User> userManager, ApplicationContext context, IHostingEnvironment environment, ILogger<AccountController> logger)
+        public AccountController(UserManager<User> userManager, 
+            ApplicationContext context, 
+            FileProcessing fileProcessing,
+            IHostingEnvironment environment, 
+            ILogger<AccountController> logger)
         {
             _userManager = userManager;
             _db = context;
+            _fileProcessing = fileProcessing;
             _appEnvironment = environment;
             _logger = logger;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View();
+            User user = await _userManager.FindByNameAsync(User.Identity.Name);
+            
+            return View(user);
         }
         
-
+        [Route("[controller]/password")]
         public IActionResult ChangePassword()
         {
             return View();
         }
 
-
-        public IActionResult ChangeAvatar()
+        [Route("[controller]/user-info")]
+        public async Task<IActionResult> ChangeUserInfo()
         {
-            return View();
-        }
-
-        public IActionResult ChangeUserInfo()
-        {
+            User currentUser = await _userManager.FindByNameAsync(User.Identity.Name);
+        
+            ChangeUserInfoViewModel model = new ChangeUserInfoViewModel
+            {
+                DateOfBirth = currentUser.DateOfBirth,
+                FullName = currentUser.FullName
+            };
             //Changge props like FirstName LastName Age and etc 
             return View();
         }
@@ -57,25 +67,23 @@ namespace DNetCMS.Controllers
         [HttpPost]
         public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
         {
-           // _logger.LogInformation("Change password action started");
             if (!ModelState.IsValid)
             {
-                //var message = GetMessageErrors(ModelState);
-               // _logger.LogInformation("Incoming model is not valid: {0}", message);
                 return BadRequest(ModelState);
             }
+            _logger.LogDebug("Change password action started");
 
             var user = await _userManager.FindByNameAsync(User.Identity.Name);
 
             if (user == null)
             {
-               // _logger.LogInformation("User not found with Email: {0}", User.Identity.Name);
+                _logger.LogDebug("User not found with Email: {0}", User.Identity.Name);
                 return NotFound("Пользователь не найден.");
             }
 
             if (!await _userManager.CheckPasswordAsync(user, model.OldPassword))
             {
-               // _logger.LogInformation("Old password is wrong");
+                _logger.LogDebug("Old password is wrong");
                 return BadRequest("Старый пароль неверен.");
             }
 
@@ -83,7 +91,7 @@ namespace DNetCMS.Controllers
 
             if (!result.Succeeded)
             {
-               // _logger.LogInformation("ChangePasswordAsync method failed: {0}", result.Errors);
+                _logger.LogDebug("ChangePasswordAsync method failed: {0}", result.Errors);
                 return BadRequest("Не удалось сменить пароль.");
             }
 
@@ -93,50 +101,35 @@ namespace DNetCMS.Controllers
         [HttpPost]
         public async Task<IActionResult> ChangeUserInfo(ChangeUserInfoViewModel model)
         {
-           // _logger.LogInformation("Change password action started");
+           
             if (!ModelState.IsValid)
             {
-                //var message = GetMessageErrors(ModelState);
-                // _logger.LogInformation("Incoming model is not valid: {0}", message);
                 return BadRequest(ModelState);
             }
+             _logger.LogDebug("ChangeUserInfo action started.");
 
             var user = await _userManager.FindByNameAsync(User.Identity.Name);
 
             if(user == null)
             {
+                _logger.LogDebug("User not found with Email: {0}", User.Identity.Name);
                 return NotFound("Пользователь не найден.");
             }
 
-            user.FirstName = model.FirstName;
-            user.LastName = model.LastName;
+            _logger.LogDebug("Change credetials.");
+            user.FullName = model.FullName;
             user.DateOfBirth = model.DateOfBirth;
+            
 
-            return RedirectToAction("Index");
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> ChangeAvatar(ChangeAvatarViewModel model)
-        {
-            // _logger.LogInformation("Change password action started");
-            if (!ModelState.IsValid)
+            if (model.Avatar != null)
             {
-                //var message = GetMessageErrors(ModelState);
-                // _logger.LogInformation("Incoming model is not valid: {0}", message);
-                return BadRequest(ModelState);
+                _logger.LogDebug("Change avatar.");
+                int id = await _fileProcessing.AvatarSave(model.Avatar);
+
+                user.Avatar = await _db.Files.FindAsync(id);
             }
-
-            var user = await _userManager.FindByNameAsync(User.Identity.Name);
-
-            if (user == null)
-            {
-                return NotFound("Пользователь не найден.");
-            }
-
-            int id = await FileProcessing.UploadFile(model.NewAvatar, Enums.FileType.Picture, _appEnvironment.WebRootPath, _db);
-
-            user.Avatar = await _db.Files.FindAsync(id);
             await _userManager.UpdateAsync(user);
+            _logger.LogDebug("ChangeUserInfo method finish successfull.");
 
             return RedirectToAction("Index");
         }

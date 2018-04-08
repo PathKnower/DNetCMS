@@ -21,21 +21,24 @@ namespace DNetCMS.Controllers
     public class FilesController : Controller
     {
         private readonly ApplicationContext db;
+        private readonly FileProcessing _fileProcessing;
         private readonly IHostingEnvironment appEnvironment;
         private readonly ILogger<FilesController> _logger;
         
-        public FilesController(ApplicationContext context, IHostingEnvironment environment, ILogger<FilesController> logger)
+        public FilesController(ApplicationContext context, 
+            FileProcessing fileProcessing,
+            IHostingEnvironment environment, 
+            ILogger<FilesController> logger)
         {
             db = context;
+            _fileProcessing = fileProcessing;
             appEnvironment = environment;
             _logger = logger;
         }
 
-        public IActionResult Index(string message = "")
+        public IActionResult Index()
         {
-            ViewBag.message = message;
-
-            return View();
+            return View(db.Files.ToArray());
         }
             
         public IActionResult UploadFile()
@@ -52,7 +55,7 @@ namespace DNetCMS.Controllers
             int result;
 
             if (string.IsNullOrEmpty(model.TargetUse))
-                result =  await FileProcessing.UploadFile(model.File, appEnvironment.WebRootPath, db);
+                result =  await _fileProcessing.UploadFile(model.File);
             else
             {
                 Enums.FileType fileType;
@@ -70,7 +73,7 @@ namespace DNetCMS.Controllers
                         break;
                 }
 
-                result = await FileProcessing.UploadFile(model.File, fileType, appEnvironment.WebRootPath, db);
+                result = await _fileProcessing.UploadFile(model.File, fileType);
             }
 
             if(result >= 0)
@@ -79,7 +82,7 @@ namespace DNetCMS.Controllers
                 return View(model);
             }
 
-            return RedirectToAction("Index", routeValues: "Файл загружен успешно.");
+            return RedirectToAction("Index");
         }
 
         public IActionResult Delete(int id)
@@ -110,10 +113,11 @@ namespace DNetCMS.Controllers
             }
             else
             {
-                return RedirectToAction("Index", routeValues: "Что-то пошло не так при удалении файла.");
+                //TODO: Общение с юзером
+                return RedirectToAction("Index");
             }
 
-            return RedirectToAction("Index", routeValues: "Файл успешно удален.");
+            return RedirectToAction("Index");
         }
     }
 }

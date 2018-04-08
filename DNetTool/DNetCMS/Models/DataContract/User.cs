@@ -10,11 +10,8 @@ namespace DNetCMS.Models.DataContract
     public class User : IdentityUser
     {
         //[Display(Name = "Имя", Description = "Укажите ваше Имя, чтобы знать, как к вам обращаться")]
-        public string FirstName { get; set; }
-
-        //[Display(Name = "Фамилия", Description = "Укажите вашу Фамилию, чтобы знать, как к вам обращаться")]
-        public string LastName { get; set; }
-
+        public string FullName { get; set; }
+        
         public DateTime CreateDate { get; set; }
 
         public DateTime DateOfBirth { get; set; }

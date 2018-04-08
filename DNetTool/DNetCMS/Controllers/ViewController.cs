@@ -44,8 +44,7 @@ namespace DNetCMS.Controllers
 
         public IActionResult Create()
         {
-            CreateReplaceViewModel model = new CreateReplaceViewModel();
-            model.Views = GetNotOverrideViews().ToArray();
+            var model = new CreateReplaceViewModel {Views = GetNotOverrideViews().ToArray()};
 
             return View(model);
         }

@@ -1,0 +1,35 @@
+﻿@model System.Collections.Generic.IEnumerable<DNetCMS.Models.DataContract.User>
+
+@{
+    ViewBag.Title = "Аккануты";
+    Layout = "_Layout";
+}
+
+<h2>Аккануты</h2>
+
+<table>
+    <tr>
+        <th>Имя пользователя</th>
+        <th>Email</th>
+        <th>Дата регистрации</th>
+        <th></th>
+    </tr>
+    @if (Model == null)
+    {
+        <p>Пользователей не найдено</p>
+    }
+    else
+    {
+        foreach (var user in Model)
+        {
+            <tr>
+                <td>@user.UserName</td>
+                <td>@user.Email</td>
+                <td>@user.CreateDate.ToShortDateString()</td>
+                
+@*           //TODO: Доделать ссылки     <td><a asp-action=""></a></td>*@
+            </tr>
+        }
+    }
+
+</table>

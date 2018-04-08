@@ -87,7 +87,7 @@ namespace DNetCMS.Controllers
             await db.News.AddAsync(news);
             await db.SaveChangesAsync();
 
-            return RedirectToAction("Index", routeValues: "Новость успешно добавлена.");
+            return RedirectToAction("Index");
         }
 
         public async Task<IActionResult> Edit(int id)
@@ -143,7 +143,7 @@ namespace DNetCMS.Controllers
 
             await db.SaveChangesAsync();
 
-            return RedirectToAction("Index", routeValues: "Новость успешно изменена.");
+            return RedirectToAction("Index");
         }
 
         public async Task<IActionResult> Delete(int id)
@@ -179,7 +179,7 @@ namespace DNetCMS.Controllers
                     info.Delete();
             }
 
-            return RedirectToAction("Index", routeValues: "Новость удалена.");
+            return RedirectToAction("Index");
         }
     }
 }

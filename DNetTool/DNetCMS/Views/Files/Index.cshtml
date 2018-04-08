@@ -1,0 +1,59 @@
+@using DNetCMS.Models.DataContract
+@model System.Collections.Generic.IEnumerable<FileModel>
+
+@{
+    ViewBag.Title = "Файлы на сервере";
+    Layout = "_Layout";
+}
+
+<h2>Все файлы доступные на сервере</h2>
+
+<table>
+    <tr>
+        <th>Имя файла</th>
+        <th>Тип файла</th>
+        <th>Путь до файла</th>
+        <th></th>
+    </tr>
+    
+    @foreach (var file in Model)
+    {
+        <tr>
+            <td>@file.Name</td>
+            <td>@GetFileType(file.FileType)</td>
+            <td>@GetShortPath(file.Path)</td>
+            <td><a asp-controller="Files" asp-action="Delete" asp-route-id="@file.Id">Удалить</a></td> 
+        </tr>
+    }
+    
+</table>
+
+@{
+
+    string GetFileType(int type)
+    {
+        Enums.FileType file = (Enums.FileType)type;
+
+        switch (file)
+        {
+            case Enums.FileType.Document:
+                return "Документ";
+
+            case Enums.FileType.Picture:
+                return "Изображение";
+
+            default:
+                return "Хранение";
+        }
+    }
+
+    string GetShortPath(string path)
+    {
+        if (path.Length > 40)
+        {
+            return $"{path.Substring(0, 40)}...";
+        }
+        
+        return path;
+    }
+}

@@ -17,6 +17,7 @@ using DNetCMS.Models.DataContract;
 using Microsoft.AspNetCore.Mvc.Razor;
 using DNetCMS.Extensions;
 using DNetCMS.Interfaces;
+using DNetCMS.Modules.Processing;
 
 namespace DNetCMS
 {
@@ -68,11 +69,7 @@ namespace DNetCMS
             
             services.AddSingleton(provider => CmsConfiguration); //Добавление конфигурации в зависимости
             services.AddScoped<ICacheStore, CacheStore>(); //Сервис хранения кэшированных данных 
-
-//            services.Configure<RazorViewEngineOptions>(options =>
-//            {
-//                options.ViewLocationExpanders.Add(new CMSViewLocator(CmsConfiguration));
-//            });
+            services.AddScoped<FileProcessing>();
 
             services.AddMvc();
         }

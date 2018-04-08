@@ -13,7 +13,7 @@ using DNetCMS.Models.DataContract;
 
 namespace DNetCMS.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    [Authorize(Policy = "AdminAccess")]
     public class AdminController : Controller
     {
         private readonly ApplicationContext db;

@@ -15,6 +15,6 @@ namespace DNetCMS.Models.ViewModels
         [Display(Name = "Сохранить как: ")]
         public string TargetUse { get; set; }
 
-        public string[] Targets { get; } = new string[] { "Изображение", "Документ", "Хранение" };
+        public string[] Targets { get; } = { "Изображение", "Документ", "Хранение" };
     }
 }

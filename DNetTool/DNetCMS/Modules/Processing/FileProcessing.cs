@@ -11,25 +11,39 @@ using DNetCMS.Models.DataContract;
 using SixLabors.ImageSharp;
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Logging;
+using SixLabors.Primitives;
 
 namespace DNetCMS.Modules.Processing
 {
     public class FileProcessing
     {
+        private ApplicationContext db;
+        private IHostingEnvironment _environment;
+        private ILogger<FileProcessing> _logger;
+        
+        public FileProcessing(ApplicationContext context,
+            IHostingEnvironment environment,
+            ILogger<FileProcessing> logger)
+        {
+            db = context;
+            _environment = environment;
+            _logger = logger;
+        }
+        
         //TODO: Add logging
 
         /// <summary>
         /// Automaticly recognize file type and redirect to UploadFile method
         /// </summary>
         /// <param name="file">Uploaded file</param>
-        /// <param name="rootPath">Application root path</param>
-        /// <param name="db">Database instance</param>
         /// <returns>Call result</returns>
-        internal static async Task<int> UploadFile(IFormFile file, string rootPath, ApplicationContext db)
+        public async Task<int> UploadFile(IFormFile file)
         {
             Enums.FileType fileType = GetFileType(file);
 
-            return await UploadFile(file, fileType, rootPath, db);
+            return await UploadFile(file, fileType);
         }
 
         /// <summary>
@@ -37,10 +51,8 @@ namespace DNetCMS.Modules.Processing
         /// </summary>
         /// <param name="file">Uploaded file</param>
         /// <param name="fileType">Target use</param>
-        /// <param name="rootPath">Application root path</param>
-        /// <param name="db">Database instance</param>
         /// <returns>Success of operation</returns>
-        internal static async Task<int> UploadFile(IFormFile file, Enums.FileType fileType, string rootPath, ApplicationContext db)
+        public async Task<int> UploadFile(IFormFile file, Enums.FileType fileType)
         {
             if (file == null)
                 return -1;
@@ -51,14 +63,14 @@ namespace DNetCMS.Modules.Processing
             switch (fileType)
             {
                 case Enums.FileType.Document:
-                    dir1 = rootPath + "/Documents/";
+                    dir1 = _environment.WebRootPath + "/Documents/";
                     break;
                 case Enums.FileType.Picture:
-                    dir1 = rootPath + "/Picture/";
+                    dir1 = _environment.WebRootPath + "/Picture/";
                     break;
                 case Enums.FileType.ToStore:
                 default:
-                    dir1 = rootPath + "/Storage/";
+                    dir1 = _environment.WebRootPath + "/Storage/";
                     break;
             }
             
@@ -80,7 +92,7 @@ namespace DNetCMS.Modules.Processing
                 Path = dir2 + file.FileName
             };
 
-            using (var fileStream = new FileStream(rootPath + result.Path, FileMode.Create))
+            using (var fileStream = new FileStream(_environment.WebRootPath + result.Path, FileMode.Create))
             {
                 await file.CopyToAsync(fileStream);
             }
@@ -90,6 +102,59 @@ namespace DNetCMS.Modules.Processing
 
             return result.Id;
         }
+
+        public async Task<int> AvatarSave(IFormFile file)
+        {
+            if (file == null || string.IsNullOrEmpty(_environment.WebRootPath))
+                return 0;
+
+            _logger.LogDebug($"AvatarSave action for file {file.FileName} started!");
+            
+            _logger.LogDebug("Check for image.");
+            Image<Rgba32> src = Image.Load(file.OpenReadStream());
+            _logger.LogDebug("Resize image to 128x128.");
+            Image<Rgba32> image = src.Clone(x => x.Resize(new Size(128, 128)));
+            
+            _logger.LogDebug("Compute hash from new image.");
+            string hash = GetHashFromFile(image.SavePixelData()); 
+            
+            _logger.LogDebug("Compute new image location.");
+            string dir1 = _environment.WebRootPath + "/Files/Avatars/" + hash.Substring(0, 2);
+            string dir2 = $"{dir1}/{hash.Substring(2, 2)}/";
+
+            _logger.LogDebug("Check directory existance.");
+            if (!Directory.Exists(dir1))
+            {
+                Directory.CreateDirectory(dir1);
+                Directory.CreateDirectory(dir2);
+            }
+            else if (Directory.Exists(dir2))
+                Directory.CreateDirectory(dir2);
+
+            _logger.LogDebug("Start copy file to server.");
+            string result = dir2 + file.FileName;
+            image.Save(result);
+            _logger.LogDebug($"File \"{file.FileName}\" save to path \"${result}\".");
+            
+            FileModel avatar = new FileModel
+            {
+                FileType = (int)Enums.FileType.Picture,
+                Name = file.FileName,
+                Path = result
+            };
+            
+            _logger.LogDebug("Add new avatar to db.");
+            await db.Files.AddAsync(avatar);
+            await db.SaveChangesAsync();
+
+            avatar = db.Files.FirstOrDefault(x => x.Path == avatar.Path);
+            _logger.LogDebug("Successfull add avatar to db.");
+            
+            _logger.LogDebug("End of AvatarSave action.");
+            return avatar.Id;
+        }
+
+        
 
         /// <summary>
         /// Remove file from server
@@ -135,10 +200,7 @@ namespace DNetCMS.Modules.Processing
                 case "svg":
                 case "svgz":
                 case "ico":
-                    if (ImageCheck(file))
-                        return Enums.FileType.Picture;
-                    else
-                        return Enums.FileType.ToStore;
+                    return ImageCheck(file) ? Enums.FileType.Picture : Enums.FileType.ToStore;
                 
                 //word
                 case "doc":
@@ -194,6 +256,19 @@ namespace DNetCMS.Modules.Processing
         internal static string GetHashFromFile(Stream fileStream)
         {
             var hash = SHA1.Create().ComputeHash(fileStream);
+            var sb = new StringBuilder(hash.Length * 2);
+
+            foreach (byte b in hash)
+            {
+                sb.Append(b.ToString("X2"));
+            }
+
+            return sb.ToString();
+        }
+        
+        private string GetHashFromFile(byte[] data)
+        {
+            var hash = SHA1.Create().ComputeHash(data);
             var sb = new StringBuilder(hash.Length * 2);
 
             foreach (byte b in hash)

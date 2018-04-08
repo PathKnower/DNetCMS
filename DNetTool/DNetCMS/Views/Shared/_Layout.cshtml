@@ -37,12 +37,12 @@
                 <ul class="nav navbar-nav navbar-right">
                     @if (User.Identity.IsAuthenticated)
                     {
-                        <li><a asp-area="" asp-controller="Account" asp-action="LogOff">Выход</a></li>
+                        <li><a asp-area="" asp-controller="Auth" asp-action="LogOff">Выход</a></li>
                     }
                     else
                     {
-                        <li><a asp-area="" asp-controller="Account" asp-action="Login">Вход</a></li>
-                        <li><a asp-area="" asp-controller="Account" asp-action="Register">Регистрация</a></li>
+                        <li><a asp-area="" asp-controller="Auth" asp-action="Login">Вход</a></li>
+                        <li><a asp-area="" asp-controller="Auth" asp-action="Register">Регистрация</a></li>
                     }
                 </ul>
             </div>
