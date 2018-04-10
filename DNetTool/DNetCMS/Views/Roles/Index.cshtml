@@ -1,0 +1,52 @@
+﻿@model IEnumerable<DNetCMS.Models.ViewModels.Roles.RoleViewModel>
+
+@{
+    ViewData["Title"] = "Роли";
+}
+
+<h2>Роли</h2>
+
+<button asp-controller="Roles" asp-action="Create">Создать роль</button>
+
+<div>
+
+    @if (Context.Items["ErrorMessage"] != null)
+    {
+        <div>
+            @Context.Items["ErrorMessage"].ToString()
+        </div>
+    }
+
+    @if (Context.Items["WarningMessage"] != null)
+    {
+        <div>
+            @Context.Items["WarningMessage"].ToString()
+        </div>
+    }
+
+    @if (Context.Items["SuccessMessage"] != null)
+    {
+        <div>
+            @Context.Items["WarningMessage"].ToString()
+        </div>
+    }
+
+    <table>
+        <tr>
+            <th>Имя</th>
+            <th>Уровень доступа</th>
+            <th></th>
+        </tr>
+        @foreach (var x in Model)
+        {
+            <tr>
+                <td>@x.Name</td>
+                <td>@x.AccessLevel</td>
+                <td>
+                    <a asp-controller="Roles" asp-action="EditRole" asp-route-id="@x.Id">Изменить</a> |
+                    <a asp-controller="Roles" asp-action="Delete" asp-route-id="@x.Id">Удалить</a>
+                </td>
+            </tr>
+        }
+    </table>
+</div>

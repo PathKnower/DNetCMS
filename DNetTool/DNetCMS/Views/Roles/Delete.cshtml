@@ -1,0 +1,32 @@
+﻿@model DNetCMS.Models.ViewModels.Roles.RoleViewModel
+
+@{
+    ViewData["Title"] = "Удаление роли";
+}
+
+<h2>Удаление роли</h2>
+
+<h3>Вы действительно хотите удалить данную роль?</h3>
+<div>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.AccessLevel)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.AccessLevel)
+        </dd>
+    </dl>
+    
+    <form asp-action="Delete">
+        @Html.HiddenFor(x => x.Id)
+        <input type="submit" value="Delete" class="btn btn-default" /> |
+        <a asp-action="Index">Back to List</a>
+    </form>
+</div>
