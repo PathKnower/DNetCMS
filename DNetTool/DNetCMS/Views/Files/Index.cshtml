@@ -8,6 +8,8 @@
 
 <h2>Все файлы доступные на сервере</h2>
 
+<button asp-controller="Files" asp-action="UploadFile">Загрузить файл</button>
+
 <table>
     <tr>
         <th>Имя файла</th>
@@ -49,11 +51,6 @@
 
     string GetShortPath(string path)
     {
-        if (path.Length > 40)
-        {
-            return $"{path.Substring(0, 40)}...";
-        }
-        
-        return path;
+        return path.Length > 40 ? $"{path.Substring(0, 40)}..." : path;
     }
 }

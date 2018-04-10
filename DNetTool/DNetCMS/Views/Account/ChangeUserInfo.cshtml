@@ -1,0 +1,27 @@
+﻿@using Microsoft.AspNetCore.Mvc.Rendering
+@model DNetCMS.Models.ViewModels.Account.ChangeUserInfoViewModel
+
+@{
+    ViewBag.Title = "Редактирование данных";
+    Layout = "_Layout";
+}
+
+<h2>Редактирование данных</h2>
+
+<form method="post" asp-controller="Account" asp-action="ChangeUserInfo">
+    <div>
+        @Html.DisplayFor(x => x.FullName)
+        @Html.EditorFor(x => x.FullName)
+        <span asp-validation-for="FullName"></span>
+    </div>
+    <div>
+        @Html.DisplayFor(x => x.DateOfBirth)
+        
+        <span asp-validation-for="DateOfBirth"></span>
+    </div>
+    <div>
+        @Html.DisplayFor(x => x.Avatar)
+        @Html.EditorFor(x => x.Avatar)
+        <span asp-validation-for="Avatar"></span>
+    </div>
+</form>

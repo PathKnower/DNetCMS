@@ -1,0 +1,47 @@
+﻿@using System.Globalization
+@using Microsoft.AspNetCore.Mvc.Rendering
+@model DNetCMS.Models.DataContract.News[]
+
+@{
+    ViewData["Title"] = "Главная новости";
+}
+
+<h3>Все доступные новости</h3>
+
+<p>
+    <a asp-action="Create">Рассказать миру кое-что новое!</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+                <th>
+                    @Html.DisplayName("Заголовок")
+                </th>
+                <th>
+                    @Html.DisplayName("Дата создания")
+                </th>
+                <th>
+                    @Html.DisplayName("Автор")
+                </th>
+            <th>@Html.DisplayName("Действия с новостью")</th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model)
+{
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Header)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CreateDate.ToString(CultureInfo.CurrentCulture))
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Id">Изменить</a> |
+@*                <a asp-action="ShowNews" asp-controller="Home" asp-route-id="@item.Id">Посмотреть</a> |*@
+                <a asp-action="Delete" asp-route-id="@item.Id">Удалить</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

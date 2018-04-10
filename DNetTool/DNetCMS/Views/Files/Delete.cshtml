@@ -1,0 +1,24 @@
+﻿@model DNetCMS.Models.DataContract.FileModel
+
+@{
+    ViewBag.Title = "Удаление файла";
+    Layout = "_Layout";
+}
+
+<h2>Удаление файла</h2>
+
+<p>Вы дейтсвительно хотите удалить этот файл?</p>
+
+<table>
+    <tr>
+        <th>Имя файла</th>
+        <th>Расположение файла</th>
+        <th>Тип файла</th>
+    </tr>
+</table>
+
+<form method="post" asp-controller="Files" asp-action="Delete">
+    <input type="hidden" asp-for="Id"/>
+    
+    <input type="submit" value="Удалить"/>
+</form>

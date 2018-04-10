@@ -9,6 +9,7 @@ namespace DNetCMS.Models.ViewModels
 {
     public class FileUploadViewModel
     {
+        [Display(Name = "Файл для загрузки")]
         [Required]
         public IFormFile File { get; set; }
 

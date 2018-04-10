@@ -22,6 +22,8 @@ namespace DNetCMS.Models.ViewModels
         [Display(Name = "Содержимое")]
         [MinLength(30, ErrorMessage = "Статья не может быть меньше 30 символов.")]
         public string Content { get; set; }
+        
+        public DateTime CreateDate { get; set; }
 
         [NotMapped]
         public IFormFile Picture { get; set; }

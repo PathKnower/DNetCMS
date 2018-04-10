@@ -33,9 +33,9 @@ namespace DNetCMS.Controllers
             ViewBag.Message = message;
 
             if (User.IsInRole("Admin"))
-                return View(db.News.Include(x => x.Author).ToArray().Reverse());
-            else
-                return View(db.News.Include(x => x.Author).Where(x => x.Author.UserName == User.Identity.Name).ToArray().Reverse());
+                return View(db.News.Include(x => x.Author).Include(x => x.Picture).ToArray().Reverse());
+            
+            return View(db.News.Include(x => x.Author).Where(x => x.Author.UserName == User.Identity.Name).ToArray().Reverse());
         }
         
         public IActionResult Create()
