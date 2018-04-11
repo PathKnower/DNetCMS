@@ -42,6 +42,39 @@ namespace DNetCMS.Controllers
             return View();
         }
 
+        public async Task<IActionResult> Edit(int Id)
+        {
+            var staticView = db.StaticViews.Find(Id);
+            if (staticView == null)
+            {
+                HttpContext.Items["ErrorMessage"] = "Не удалось найти представление для изменения.";
+                return RedirectToAction("Index");
+            }
+            
+            EditStaticViewModel model = new EditStaticViewModel
+            {
+                Content = ReadFromFile(staticView.Path),
+                Id =  staticView.Id,
+                Name = staticView.Name,
+                Route = staticView.Route
+            };
+            
+            return View(model);
+        }
+
+        public async Task<IActionResult> Remove(int Id)
+        {
+            var view = db.StaticViews.Find(Id);
+            if (view == null)
+            {
+                HttpContext.Items["ErrorMessage"] = "Не удалось найти удаляемое представление.";
+                return RedirectToAction("Index");
+            }
+            
+            return View(view);
+        }
+        
+
         [HttpPost]
         public async Task<IActionResult> Create(CreateStaticViewModel model)
         {
@@ -141,7 +174,7 @@ namespace DNetCMS.Controllers
                 db.StaticViews.Update(view);
                 await db.SaveChangesAsync();
             }
-            HttpContext.Items["Success"] = "";
+            HttpContext.Items["SuccessMessage"] = "";
             return RedirectToAction("Index");
         }
 
@@ -162,12 +195,34 @@ namespace DNetCMS.Controllers
             }
         }
 
+        private string ReadFromFile(string filePath)
+        {
+            try
+            {
+                FileStream fs = new FileStream(filePath, FileMode.Open);
+                StreamReader sr = new StreamReader(fs);
+                string result = sr.ReadToEnd();
+                sr.Close();
+                fs.Close();
+                return result;
+            }
+            catch (Exception)
+            {
+                return "Ошибка чтения файла. Проверьте имеется ли доступ к файлам.";
+            }
+        }
+
         [HttpPost]
-        public async Task<IActionResult> Remove(int Id)
+        [ActionName("Remove")]
+        public async Task<IActionResult> RemoveView(int Id)
         {
             StaticView view = db.StaticViews.FirstOrDefault(x => x.Id == Id);
             if (view == null)
-                return NotFound("Данная статическая страница не найдена.");
+            {
+                HttpContext.Items["ErrorMessage"] = "Данная статическая страница не найдена.";
+                return RedirectToAction("Index");
+            }
+                
 
             FileInfo file = new FileInfo(view.Path);
             if (file.Exists)
@@ -176,7 +231,7 @@ namespace DNetCMS.Controllers
             db.StaticViews.Remove(view);
             await db.SaveChangesAsync();
 
-            HttpContext.Items["Success"] = "";
+            HttpContext.Items["SuccessMessage"] = "Статическая страница успешно удалена.";
             return RedirectToAction("Index");
         }
     }

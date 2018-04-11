@@ -33,9 +33,10 @@ namespace DNetCMS.Controllers
             ViewBag.Message = message;
 
             if (User.IsInRole("Admin"))
-                return View(db.News.Include(x => x.Author).Include(x => x.Picture).ToArray().Reverse());
+                return View(db.News.Include(x => x.Author).Include(x => x.Picture).Reverse().ToArray());
             
-            return View(db.News.Include(x => x.Author).Where(x => x.Author.UserName == User.Identity.Name).ToArray().Reverse());
+            return View(db.News.Include(x => x.Author).
+                Where(x => x.Author.UserName == User.Identity.Name).Reverse().ToArray());
         }
         
         public IActionResult Create()
@@ -152,8 +153,16 @@ namespace DNetCMS.Controllers
 
             if(news == null || news.Author.UserName != User.Identity.Name)
                 return RedirectToAction("Index");
+
+            NewsViewModel model = new NewsViewModel
+            {
+                Content = news.Content,
+                CreateDate = news.CreateDate,
+                Header = news.Header,
+                Id = news.Id
+            };
             
-            return View(news);
+            return View(model);
         }
 
         [HttpPost]

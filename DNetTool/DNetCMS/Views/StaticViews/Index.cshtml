@@ -1,0 +1,67 @@
+﻿@model DNetCMS.Models.DataContract.StaticView[]
+
+@{
+    ViewBag.Title = "Статические страницы";
+    Layout = "_Layout";
+}
+
+<h2>Статические страницы</h2>
+
+<div>
+    <button asp-action="Create" class="btn btn-default">Создать новую страницу</button>
+</div>
+
+<div>
+    @if (Context.Items["ErrorMessage"] != null)
+    {    
+        <div>
+            @Context.Items["ErrorMessage"].ToString()
+        </div>
+    }
+
+    @if (Context.Items["WarningMessage"] != null)
+    {
+        <div>
+            @Context.Items["WarningMessage"].ToString()
+        </div>
+    }
+
+    @if (Context.Items["SuccessMessage"] != null)
+    {
+        <div>
+            @Context.Items["SuccessMessage"].ToString()
+        </div>
+    }
+    
+    <div>
+        <table>
+            <tr>
+                <th>Имя страницы</th>
+                <th>Расположение страницы</th>
+                <th>Путь страницы</th>
+                <th></th>
+            </tr>
+            
+            @foreach (var x in Model)
+            {
+                <tr>
+                    <td>@x.Name</td>
+                    <td>@GetShortPath(x.Path)</td>
+                    <td>@x.Route</td>
+                    <td>
+                        <a asp-action="Edit" asp-route-Id="@x.Id">Редактировать</a> |
+                        <a asp-action="Remove" asp-route-Id="@x.Id">Удалить</a>
+                    </td>
+                </tr>
+            }
+        </table>
+    </div>
+
+</div>
+
+@{
+    string GetShortPath(string path)
+    {
+        return path.Length > 40 ? $"{path.Substring(0, 40)}..." : path;
+    }
+}

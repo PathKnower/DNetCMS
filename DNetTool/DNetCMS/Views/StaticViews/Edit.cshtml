@@ -1,0 +1,32 @@
+﻿@model DNetCMS.Models.ViewModels.StaticViews.EditStaticViewModel
+
+@{
+    ViewBag.Title = "Редактирование страницы";
+    Layout = "_Layout";
+}
+
+<h2>Редактирование страницы</h2>
+
+<form asp-action="Edit">
+    <div>
+        @Html.DisplayFor(m => m.Name)
+        @Html.EditorFor(m => m.Name)
+        <span asp-validation-for="Name"></span>
+    </div>
+    <div>
+        @Html.DisplayFor(m => m.Route)
+        @Html.EditorFor(m => m.Route)
+        <span asp-validation-for="Route"></span>
+    </div>
+    <div>
+        @Html.DisplayFor(m => m.Content)
+        @Html.EditorFor(m => m.Content)
+        <span asp-validation-for="Content"></span>
+    </div>
+    @Html.HiddenFor(m => m.Id)
+    <input type="submit" value="Редактировать"/>
+</form>
+
+<div>
+    <a asp-action="Index">Вернуться к списку</a>
+</div>
