@@ -1,8 +1,8 @@
 version: '3'
 
 services:
-  dnettool:
-    image: dnettool
+  dnetcms:
+    image: dnetcms
     build:
       context: .
-      dockerfile: DNetTool/Dockerfile
+      dockerfile: DNetCMS/Dockerfile
