@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using DNetCMS.Models.DataContract;
 using DNetCMS.Models.ViewModels;
@@ -14,12 +15,17 @@ namespace DNetCMS.Controllers
     {
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ILogger<AccountController> _logger;
 
-        public AuthController(UserManager<User> userManager, SignInManager<User> signInManager, ILogger<AccountController> logger)
+        public AuthController(UserManager<User> userManager, 
+            SignInManager<User> signInManager,
+            RoleManager<IdentityRole> roleManager,
+            ILogger<AccountController> logger)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _roleManager = roleManager;
             _logger = logger;
         }
 
@@ -68,6 +74,17 @@ namespace DNetCMS.Controllers
                     await _signInManager.PasswordSignInAsync(model.Username, model.Password, model.RememberMe, false);
                 if (result.Succeeded)
                 {
+                    var roles = _userManager.GetRolesAsync(await _userManager.FindByNameAsync(model.Username));
+                    if (roles != null)
+                    {
+                        
+                    }
+                    
+                    //ClaimsIdentity claim = new ClaimsIdentity();
+                    
+                    
+                    //User.AddIdentity();
+                    
                     // проверяем, принадлежит ли URL приложению
                     if (!string.IsNullOrEmpty(model.ReturnUrl) && Url.IsLocalUrl(model.ReturnUrl))
                     {
@@ -84,6 +101,16 @@ namespace DNetCMS.Controllers
                 }
             }
             return View(model);
+        }
+
+        private async Task AddClaims(string username)
+        {
+            var roles = await _userManager.GetRolesAsync(await _userManager.FindByNameAsync(username));
+            if (roles != null)
+            {
+                
+            }
+            
         }
 
         [ValidateAntiForgeryToken]

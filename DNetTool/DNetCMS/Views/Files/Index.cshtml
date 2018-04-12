@@ -3,14 +3,39 @@
 
 @{
     ViewBag.Title = "Файлы на сервере";
-    Layout = "_Layout";
 }
 
 <h2>Все файлы доступные на сервере</h2>
 
-<button asp-controller="Files" asp-action="UploadFile">Загрузить файл</button>
+<a asp-controller="Files" asp-action="UploadFile">Загрузить файл</a>
 
-<table>
+<div>
+
+    @if (Context.Items["ErrorMessage"] != null)
+    {
+        <div>
+            @Context.Items["ErrorMessage"].ToString()
+        </div>
+    }
+
+    @if (Context.Items["WarningMessage"] != null)
+    {
+        <div>
+            @Context.Items["WarningMessage"].ToString()
+        </div>
+    }
+
+    @if (Context.Items["SuccessMessage"] != null)
+    {
+        <div>
+            @Context.Items["SuccessMessage"].ToString()
+        </div>
+    }
+
+</div>
+
+
+<table class="table table-bordered">
     <tr>
         <th>Имя файла</th>
         <th>Тип файла</th>

@@ -1,4 +1,4 @@
-﻿@model IEnumerable<DNetCMS.Models.ViewModels.Roles.RoleViewModel>
+﻿@model System.Collections.Generic.IEnumerable<DNetCMS.Models.ViewModels.Roles.RoleViewModel>
 
 @{
     ViewData["Title"] = "Роли";
@@ -6,7 +6,12 @@
 
 <h2>Роли</h2>
 
-<button asp-controller="Roles" asp-action="Create">Создать роль</button>
+<a asp-controller="Roles" asp-action="Create">Создать роль</a> 
+
+<div>
+    <a asp-action="UserList">Список пользователей и их прав</a>
+</div>
+
 
 <div>
 
@@ -31,7 +36,7 @@
         </div>
     }
 
-    <table>
+    <table class="table table-bordered">
         <tr>
             <th>Имя</th>
             <th>Уровень доступа</th>
@@ -43,7 +48,7 @@
                 <td>@x.Name</td>
                 <td>@x.AccessLevel</td>
                 <td>
-                    <a asp-controller="Roles" asp-action="EditRole" asp-route-id="@x.Id">Изменить</a> |
+                    <a asp-controller="Roles" asp-action="Edit" asp-route-id="@x.Id">Изменить</a> |
                     <a asp-controller="Roles" asp-action="Delete" asp-route-id="@x.Id">Удалить</a>
                 </td>
             </tr>

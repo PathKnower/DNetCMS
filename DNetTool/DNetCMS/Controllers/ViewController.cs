@@ -49,6 +49,18 @@ namespace DNetCMS.Controllers
             return View(model);
         }
 
+        public IActionResult Edit()
+        {
+            //TODO: Дописать полноценную CED логику
+
+            return View();
+        }
+
+        public IActionResult Delete()
+        {
+            return View();
+        }
+
         [HttpPost]
         public IActionResult Create(CreateReplaceViewModel model)
         {

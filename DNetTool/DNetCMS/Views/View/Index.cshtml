@@ -1,18 +1,79 @@
 ﻿@model DNetCMS.Models.DataContract.BaseViewOverride[]
 
 @{
-    ViewBag.Title = "title";
-    Layout = "_Layout";
+    ViewBag.Title = "Базовые представления";
 }
 
-<h2>title</h2>
+<h2>Базовые представления</h2>
 
-//TODO: сделать все View
+<div>
+    <button class="btn btn-default" asp-action="Create">Создать представление</button>
+</div>
+
+<div>
+
+    @if (Context.Items["ErrorMessage"] != null)
+    {
+        <div>
+            @Context.Items["ErrorMessage"].ToString()
+        </div>
+    }
+
+    @if (Context.Items["WarningMessage"] != null)
+    {
+        <div>
+            @Context.Items["WarningMessage"].ToString()
+        </div>
+    }
+
+    @if (Context.Items["SuccessMessage"] != null)
+    {
+        <div>
+            @Context.Items["SuccessMessage"].ToString()
+        </div>
+    }
+
+</div>
 
 @if (Model != null)
 {
-    foreach (var m in Model)
+    <table class="table table-bordered">
+        <tr>
+            <th>Переписанная страница</th>
+            <th>Активно</th>
+            <th>Расположение файла</th>
+            <th></th>
+        </tr>
+        @foreach (var m in Model)
+        {
+        <tr>
+            <td>@m.View</td>
+            <td>@IsEnable(m.Enable)</td>
+            <td>@GetShortPath(m.Path)</td>
+            <td></td>
+        </tr>
+        }
+    </table>
+}
+else
+{
+    <p>
+        Ни одна базовая страница еще не переписана, попробуйте
+        <b>
+            <a asp-action="Create">переписать свою первую страницу!</a>
+        </b>
+    </p>
+}
+
+@{
+
+    string IsEnable(bool enable)
     {
-        
+        return enable ? "Активен" : "Выключен";
+    }
+    
+    string GetShortPath(string path)
+    {
+        return path.Length > 40 ? $"{path.Substring(0, 40)}..." : path;
     }
 }

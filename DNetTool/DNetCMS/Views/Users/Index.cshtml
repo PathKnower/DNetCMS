@@ -1,13 +1,39 @@
-﻿@model System.Collections.Generic.IEnumerable<DNetCMS.Models.DataContract.User>
+﻿@model IEnumerable<DNetCMS.Models.DataContract.User>
 
 @{
     ViewBag.Title = "Аккануты";
-    Layout = "_Layout";
 }
 
 <h2>Аккануты</h2>
 
-<table>
+<div>
+    <button class="btn btn-default" asp-action="Create">Создать пользователя</button>
+</div>
+
+<div>
+    @if (Context.Items["ErrorMessage"] != null)
+    {
+        <div>
+            @Context.Items["ErrorMessage"].ToString()
+        </div>
+    }
+
+    @if (Context.Items["WarningMessage"] != null)
+    {
+        <div>
+            @Context.Items["WarningMessage"].ToString()
+        </div>
+    }
+
+    @if (Context.Items["SuccessMessage"] != null)
+    {
+        <div>
+            @Context.Items["SuccessMessage"].ToString()
+        </div>
+    }
+</div>
+
+<table class="table table-bordered">
     <tr>
         <th>Имя пользователя</th>
         <th>Email</th>
@@ -26,8 +52,10 @@
                 <td>@user.UserName</td>
                 <td>@user.Email</td>
                 <td>@user.CreateDate.ToShortDateString()</td>
-                
-@*           //TODO: Доделать ссылки     <td><a asp-action=""></a></td>*@
+                <td>
+                    <a asp-controller="Users" asp-action="Edit">Изменить</a> |
+                    <a asp-controller="Users" asp-action="Delete"></a>
+                </td>
             </tr>
         }
     }

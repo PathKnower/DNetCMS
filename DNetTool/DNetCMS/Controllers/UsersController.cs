@@ -25,6 +25,31 @@ namespace DNetCMS.Controllers
 
         public IActionResult Create() => View();
         
+        public async Task<IActionResult> Edit(string Id)
+        {
+            User user = await _userManager.FindByIdAsync(Id);
+            if (user == null)
+            {
+                HttpContext.Items["ErrorMessage"] = "Пользователь не найден.";
+                return RedirectToAction("Index");
+            }
+            
+            EditUserViewModel model = new EditUserViewModel { Id = user.Id, Email = user.Email };
+            return View(model);
+        }
+
+        public async Task<IActionResult> Delete(string Id)
+        {
+            User user = await _userManager.FindByIdAsync(Id);
+            if (user == null)
+            {
+                HttpContext.Items["ErrorMessage"] = "Пользователь не найден.";
+                return RedirectToAction("Index");
+            }
+
+            return View(user);
+        }
+
         //TODO: Переписать логику управления пользователями
 
 
@@ -37,7 +62,7 @@ namespace DNetCMS.Controllers
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
-                    HttpContext.Items["Success"] = "Пользователь успешно создан.";
+                    HttpContext.Items["SuccessMessage"] = "Пользователь успешно создан.";
                     return RedirectToAction("Index");
                 }
                 else
@@ -51,16 +76,7 @@ namespace DNetCMS.Controllers
             return View(model);
         }
 
-        public async Task<IActionResult> Edit(string id)
-        {
-            User user = await _userManager.FindByIdAsync(id);
-            if (user == null)
-            {
-                return NotFound();
-            }
-            EditUserViewModel model = new EditUserViewModel { Id = user.Id, Email = user.Email };
-            return View(model);
-        }
+        
 
         [HttpPost]
         public async Task<IActionResult> Edit(EditUserViewModel model)
@@ -76,7 +92,7 @@ namespace DNetCMS.Controllers
                     var result = await _userManager.UpdateAsync(user);
                     if (result.Succeeded)
                     {
-                        HttpContext.Items["Success"] = "Изменения успешно сохранены.";
+                        HttpContext.Items["SuccessMessage"] = "Изменения успешно сохранены.";
                         return RedirectToAction("Index");
                     }
                     else
@@ -92,15 +108,20 @@ namespace DNetCMS.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> Delete(string id)
+        [ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> DeleteUser(string id)
         {
             User user = await _userManager.FindByIdAsync(id);
             if (user != null)
             {
                 IdentityResult result = await _userManager.DeleteAsync(user);
+                if(result.Succeeded)
+                    HttpContext.Items["SuccessMessage"] = "Пользователь успешно удален.";
+                else
+                    HttpContext.Items["ErrorMessage"] = "Не удалось удалить пользователя.";
             }
-
-            HttpContext.Items["Success"] = "Пользователь успешно удален.";
+            
             return RedirectToAction("Index");
         }
 

@@ -9,11 +9,12 @@ using DNetCMS.Models.ViewModels.Roles;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Configuration;
 
 namespace DNetCMS.Controllers
 {
-    [Authorize(Policy = "AdminAccess")]
+    //[Authorize(Policy = "AdminAccess")]
     public class RolesController : Controller
     {
         RoleManager<IdentityRole> _roleManager;
@@ -49,13 +50,13 @@ namespace DNetCMS.Controllers
         {
             CreateRoleViewModel model = new CreateRoleViewModel
             {
-                Claims = GetClaims()
+                Claims = new SelectList(GetClaims())
             };
 
             return View(model);
         }
 
-        public async Task<IActionResult> EditRole(string Id)
+        public async Task<IActionResult> Edit(string Id)
         {
             var role = await _roleManager.FindByIdAsync(Id);
 
@@ -68,7 +69,7 @@ namespace DNetCMS.Controllers
 
             ChangeRoleClaims model = new ChangeRoleClaims
             {
-                Claims = GetClaims(),
+                Claims = new SelectList(GetClaims()),
                 Id = Id,
                 Name = role.Name,
                 SelectedAccessLevel = (await _roleManager.GetClaimsAsync(role))[0]?.Value
@@ -82,11 +83,8 @@ namespace DNetCMS.Controllers
             var role = await _roleManager.FindByIdAsync(Id);
             if(role == null)
             {
-                if (role == null)
-                {
-                    HttpContext.Items["ErrorMessage"] = "Не удалось найти роль.";
-                    return RedirectToAction("Index");
-                }
+                HttpContext.Items["ErrorMessage"] = "Не удалось найти роль.";
+                return RedirectToAction("Index");
             }
 
             RoleViewModel model = new RoleViewModel
@@ -104,15 +102,15 @@ namespace DNetCMS.Controllers
         {
             if (!ModelState.IsValid)
             {
-                model.Claims = GetClaims();
+                model.Claims = new SelectList(GetClaims());
                 return View(model);
             }
                 
 
-            if (!string.IsNullOrEmpty(model.SelectedAccessLevel) || !GetClaims().Contains(model.SelectedAccessLevel))
+            if (string.IsNullOrEmpty(model.SelectedAccessLevel) || !GetClaims().Contains(model.SelectedAccessLevel))
             {
                 ModelState.AddModelError("SelectedAccessLevel", "Выбранный уровень доступа не существует.");
-                model.Claims = GetClaims();
+                model.Claims = new SelectList(GetClaims());
                 return View(model);
             }
 
@@ -142,7 +140,7 @@ namespace DNetCMS.Controllers
             if (!string.IsNullOrEmpty(model.SelectedAccessLevel) || !GetClaims().Contains(model.SelectedAccessLevel))
             {
                 ModelState.AddModelError("SelectedAccessLevel", "Выбранный уровень доступа не существует.");
-                model.Claims = GetClaims();
+                model.Claims = new SelectList(GetClaims());
                 return View(model);
             }
 

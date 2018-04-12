@@ -1,7 +1,27 @@
-﻿
+﻿@using Microsoft.AspNetCore.Mvc.Rendering
+@model DNetCMS.Models.ViewModels.EditUserViewModel
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Редактирование пользователя";
 }
+<h2>Изменить пользователя</h2>
 
-<h2>Edit</h2>
+<form asp-action="Edit">
+    <div>
+        @Html.DisplayFor(x => x.Email)
+        @Html.EditorFor(x => x.Email)
+        <span asp-validation-for="Email"></span>
+    </div>
+@*    <div>*@
+@*        @Html.DisplayFor(x => x.Password)*@
+@*        @Html.EditorFor(x => x.Password)*@
+@*        <span asp-validation-for="Password"></span>*@
+@*    </div>*@
+@*    <div>*@
+@*        @Html.DisplayFor(x => x.RepeatPassword)*@
+@*        @Html.EditorFor(x => x.RepeatPassword)*@
+@*        <span asp-validation-for="RepeatPassword"></span>*@
+@*    </div>*@
+@*    *@
+    <input type="submit" value="Сохранить"/>
+</form>
 

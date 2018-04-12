@@ -8,10 +8,12 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 
 using DNetCMS.Models.DataContract;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 
 namespace DNetCMS.Controllers
 {
+    [Authorize(Policy = "ModeratorAccess")]
     public class GenericController : Controller
     {
         private readonly ApplicationContext db;

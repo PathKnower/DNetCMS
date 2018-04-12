@@ -17,6 +17,7 @@ using DNetCMS.Models.DataContract;
 using Microsoft.AspNetCore.Mvc.Razor;
 using DNetCMS.Extensions;
 using DNetCMS.Interfaces;
+using DNetCMS.Middleware;
 using DNetCMS.Modules.Processing;
 
 namespace DNetCMS
@@ -53,9 +54,9 @@ namespace DNetCMS
             {
                 options.Password.RequiredLength = 6;
                 options.Password.RequireNonAlphanumeric = false;
-                options.Password.RequireDigit = true;
+                options.Password.RequireDigit = false;
                 options.Password.RequireLowercase = true;
-                options.Password.RequireUppercase = true;
+                options.Password.RequireUppercase = false;
             })
             .AddEntityFrameworkStores<ApplicationContext>();
 
@@ -77,6 +78,8 @@ namespace DNetCMS
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory logger)
         {
+            app.UseMiddleware(typeof(ExceptionHandler));
+            
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

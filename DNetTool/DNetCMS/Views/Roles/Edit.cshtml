@@ -1,4 +1,5 @@
-﻿@model DNetCMS.Models.ViewModels.Roles.ChangeRoleClaims
+﻿@using Microsoft.AspNetCore.Mvc.Rendering
+@model DNetCMS.Models.ViewModels.Roles.ChangeRoleClaims
 
 @{
     ViewData["Title"] = "Редактирование роли";
@@ -19,7 +20,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="SelectedAccessLevel" class="control-label"></label>
-                @Html.RadioButtonFor(x => x.SelectedAccessLevel, Model.Claims)
+                @Html.DropDownListFor(x => x.SelectedAccessLevel, Model.Claims, "-- Выберите уровень доступа --")
                 <span asp-validation-for="SelectedAccessLevel" class="text-danger"></span>
             </div>
             <div class="form-group">
