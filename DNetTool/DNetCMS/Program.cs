@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using DNetCMS.Models.DataContract;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -25,8 +26,8 @@ namespace DNetCMS
 
             //host.Run();
             var webHost = BuildWebHost(args);
-
-
+            
+            
             webHost.Run();
         }
 

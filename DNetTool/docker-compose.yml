@@ -1,8 +1,41 @@
 version: '3'
 
 services:
+
+  #CMS itself
   dnetcms:
     image: dnetcms
     build:
       context: .
       dockerfile: DNetCMS/Dockerfile
+    ports: 
+      - 5000:80
+    # links:
+    #   - postgresql
+    depends_on:
+      - postgresql
+
+  #Database
+  postgresql:
+    image: postgres
+    restart: always
+    environment:
+      #User
+      POSTGRES_USER: dnetcms
+      #Database name
+      POSTGRES_DB: DNetCMS
+      #Password
+      POSTGRES_PASSWORD: EhyZCF5Br
+    ports:
+      - 2500:5432
+
+
+  #Web host
+  # hots:
+  #   image: nginx
+  #   restart: always
+  #   ports: 
+  #     - 80:80
+  #     - 443:443
+  #   links: 
+  #     - dnetcms

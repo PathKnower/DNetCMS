@@ -27,7 +27,7 @@ namespace DNetCMS.Models.DataContract
         public ApplicationContext(DbContextOptions<ApplicationContext> options)
            : base(options)
         {
-            
+            Database.Migrate();
         }
 
         public override EntityEntry<TEntity> Update<TEntity>([NotNull] TEntity entity)

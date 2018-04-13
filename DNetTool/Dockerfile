@@ -1,4 +1,6 @@
 FROM microsoft/aspnetcore:2.0 AS base
+MAINTAINER wardef
+
 WORKDIR /app
 EXPOSE 80
 
