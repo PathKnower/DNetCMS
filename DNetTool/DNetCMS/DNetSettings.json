@@ -1,7 +1,7 @@
 ﻿{
   "Database": {
     "DatabaseProvider": "Postresql",
-    "ConnectionString": "User ID=dnetcms;Password=EhyZCF5Br;Host=postgres;Port=5432;Database=DNetCMS;Pooling=true;",
+    "ConnectionString": "User ID=dnetcms;Password=EhyZCF5Br;Host=db;Port=5432;Database=DNetCMS;Pooling=true;",
     "ConnectionString2" : "User ID=wardef;Password=father;Host=localhost;Port=2500;Database=wardef;Pooling=true;"
   },
   "Views": {

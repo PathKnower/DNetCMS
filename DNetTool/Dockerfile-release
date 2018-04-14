@@ -1,0 +1,9 @@
+#Release
+FROM microsoft/dotnet:2.0-runtime AS runtime
+MAINTAINER wardef
+EXPOSE 80
+
+WORKDIR /app
+COPY publish/DNetCMS .
+
+ENTRYPOINT ["dotnet", "DNetCMS.dll"]

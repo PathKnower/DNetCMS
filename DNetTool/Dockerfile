@@ -1,3 +1,4 @@
+# Jessie version with huge weight (Develop)
 FROM microsoft/aspnetcore:2.0 AS base
 MAINTAINER wardef
 

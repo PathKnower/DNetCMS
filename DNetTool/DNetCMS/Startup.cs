@@ -49,7 +49,7 @@ namespace DNetCMS
             //string connection = "User ID=postgres;Password=dNetTool;Host=localhost;Port=5432;Database=DNetTool;Pooling=true;";
 
             services.AddDbContext<ApplicationContext>(options => 
-                options.UseNpgsql(CmsConfiguration.GetSection("Database")["ConnectionString2"]));
+                options.UseNpgsql(CmsConfiguration.GetSection("Database")["ConnectionString"]));
             
             services.AddIdentity<User, IdentityRole>(options => 
             {
