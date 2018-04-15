@@ -10,7 +10,7 @@ namespace DNetCMS.Extensions
 {
     public class CacheStore : ICacheStore
     {
-        public IEnumerable<BaseViewOverride> ViewOverrides { get; private set; }
+        public IList<BaseViewOverride> ViewOverrides { get; private set; }
 
         private readonly ApplicationContext db;
 
@@ -23,7 +23,7 @@ namespace DNetCMS.Extensions
 
         private void Db_BaseViewOverrideUpdate()
         {
-            ViewOverrides = db.ViewOverrides.AsEnumerable();
+            ViewOverrides = db.ViewOverrides.ToList();
         }
     }
 }

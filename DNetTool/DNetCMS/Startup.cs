@@ -47,7 +47,7 @@ namespace DNetCMS
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<ApplicationContext>(options => 
-                options.UseNpgsql(CmsConfiguration.GetSection("Database")["ConnectionString"]));
+                options.UseNpgsql(CmsConfiguration.GetSection("Database")["ConnectionString"]), ServiceLifetime.Singleton);
             
             services.AddIdentity<User, IdentityRole>(options => 
             {
@@ -68,7 +68,7 @@ namespace DNetCMS
 
             
             services.AddSingleton(provider => CmsConfiguration); //Добавление конфигурации в зависимости
-            services.AddScoped<ICacheStore, CacheStore>(); //Сервис хранения кэшированных данных 
+            services.AddSingleton<ICacheStore, CacheStore>(); //Сервис хранения кэшированных данных 
             services.AddScoped<FileProcessing>();
 
             services.AddMvc();
@@ -78,6 +78,11 @@ namespace DNetCMS
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory logger)
         {
             app.UseMiddleware(typeof(ExceptionHandler));
+
+            // using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            // {
+            //     serviceScope.ServiceProvider.GetService<ApplicationContext>().Database.Migrate();
+            // }
             
             if (env.IsDevelopment())
             {

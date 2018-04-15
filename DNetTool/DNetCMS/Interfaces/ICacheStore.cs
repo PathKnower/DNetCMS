@@ -8,6 +8,6 @@ namespace DNetCMS.Interfaces
 {
     public interface ICacheStore
     {
-        IEnumerable<BaseViewOverride> ViewOverrides { get; }
+        IList<BaseViewOverride> ViewOverrides { get; }
     }
 }
