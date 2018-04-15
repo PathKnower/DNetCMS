@@ -174,7 +174,7 @@ namespace DNetCMS.Modules.Processing
 
                 return true;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return false;
             }

@@ -14,7 +14,7 @@ namespace DNetCMS.Controllers
 {
     public class HomeController : CmsController
     {
-        ApplicationContext db;
+        //ApplicationContext db;
         private ICacheStore _cacheStore;
 
         public HomeController(ICacheStore cacheStore) : base(cacheStore)
