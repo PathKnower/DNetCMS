@@ -35,6 +35,7 @@ namespace DNetCMS.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
             if (ModelState.IsValid)
@@ -101,16 +102,6 @@ namespace DNetCMS.Controllers
                 }
             }
             return View(model);
-        }
-
-        private async Task AddClaims(string username)
-        {
-            var roles = await _userManager.GetRolesAsync(await _userManager.FindByNameAsync(username));
-            if (roles != null)
-            {
-                
-            }
-            
         }
 
         [ValidateAntiForgeryToken]
