@@ -1,39 +1,61 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using DNetCMS.Models.DataContract;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
+using Serilog;
+using Serilog.Events;
 
 namespace DNetCMS
 {
     public class Program
     {
+        public static IConfiguration Configuration { get; } = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+            .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production"}.json", optional: true)
+            .AddEnvironmentVariables()
+            .Build();
+        
         public static void Main(string[] args)
         {
-            //var config = new ConfigurationBuilder().AddCommandLine(args).Build();
+//            Log.Logger =  new LoggerConfiguration()
+//                .MinimumLevel.Debug()
+//                .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+//                .Enrich.FromLogContext()
+//                .WriteTo.Console()
+//                .CreateLogger();
 
-            //var host = new WebHostBuilder()
-            //    .UseConfiguration(config)
-            //    .UseKestrel()
-            //    .UseStartup<Startup>()
-            //    .UseUrls("http://localhost:5000", "http://localhost:5001")
-            //    .Build();
-
-            //host.Run();
-            var webHost = BuildWebHost(args);
+            var logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(Configuration)
+                .CreateLogger();
             
+            Log.Logger = logger;
             
-            webHost.Run();
+            try
+            {
+                Log.Information("Standing by...");
+                var webHost = BuildWebHost(args);
+                
+                Log.Information("Starting application");
+                webHost.Run();
+            }
+            catch (Exception ex)
+            {
+                Log.Fatal(ex, "Host terminated unexpectedly");
+            }
+            finally
+            {
+                Log.CloseAndFlush();
+            }
+            
         }
 
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>()
+                .UseConfiguration(Configuration)
+                .UseSerilog()
                 .Build();
 
         //public static IWebHostBuilder CreateDefaultBuilder(string[] args)

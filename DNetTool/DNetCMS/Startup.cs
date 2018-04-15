@@ -15,7 +15,7 @@ using Microsoft.Extensions.Logging;
 
 using DNetCMS.Models.DataContract;
 using Microsoft.AspNetCore.Mvc.Razor;
-using DNetCMS.Extensions;
+using DNetCMS.Extensions;    
 using DNetCMS.Interfaces;
 using DNetCMS.Middleware;
 using DNetCMS.Modules.Processing;
@@ -34,7 +34,7 @@ namespace DNetCMS
             _env = environment;
 
             var builder = new ConfigurationBuilder().SetBasePath(_env.ContentRootPath);
-            builder.AddJsonFile("DNetSettings.json", false, true);
+            builder.AddJsonFile("DNetSettings.json", optional: false, reloadOnChange: true);
 
             CmsConfiguration = builder.Build();
         }
@@ -46,8 +46,6 @@ namespace DNetCMS
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            //string connection = "User ID=postgres;Password=dNetTool;Host=localhost;Port=5432;Database=DNetTool;Pooling=true;";
-
             services.AddDbContext<ApplicationContext>(options => 
                 options.UseNpgsql(CmsConfiguration.GetSection("Database")["ConnectionString"]));
             
@@ -93,8 +91,7 @@ namespace DNetCMS
 
             app.UseStaticFiles();
 
-            logger.AddConsole();
-            //logger.AddNLog();
+            //logger.AddConsole();
 
             app.UseAuthentication();
 
@@ -108,7 +105,7 @@ namespace DNetCMS
 
         //public void SettingsFileCheck(string json)
         //{
-
+        //TODO Не забыть чекать конфиг файл
         //}
     }
 }
