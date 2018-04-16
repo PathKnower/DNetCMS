@@ -4,32 +4,33 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace DNetCMS.Middleware
 {
-    // You may need to install the Microsoft.AspNetCore.Http.Abstractions package into your project
     public class ExceptionHandler
     {
+        private readonly ILogger<ExceptionHandler> _logger;
         private readonly RequestDelegate _next;
 
-        public ExceptionHandler(RequestDelegate next)
+        public ExceptionHandler(RequestDelegate next, ILogger<ExceptionHandler> logger)
         {
             _next = next;
+            _logger = logger;
         }
 
-        public Task Invoke(HttpContext httpContext)
+        public async Task Invoke(HttpContext httpContext)
         {
 
-            return _next(httpContext);
-        }
-    }
-
-    // Extension method used to add the middleware to the HTTP request pipeline.
-    public static class ExceptionHandlerExtensions
-    {
-        public static IApplicationBuilder UseExceptionHandler(this IApplicationBuilder builder)
-        {
-            return builder.UseMiddleware<ExceptionHandler>();
+            try
+            {
+                await _next(httpContext);
+            }
+            catch (Exception e)
+            {
+                _logger.LogCritical("Cathed exception: {@e}");
+            }
         }
     }
 }

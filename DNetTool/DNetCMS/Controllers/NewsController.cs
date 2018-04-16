@@ -12,26 +12,29 @@ using DNetCMS.Models.ViewModels;
 using System.IO;
 
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Logging;
 
 namespace DNetCMS.Controllers
 {
     [Authorize(Policy = "WriterAccess")]
     public class NewsController : Controller
     {
-        ApplicationContext db;
-        IHostingEnvironment _appEnvironment;
+        private readonly ApplicationContext db;
+        private readonly IHostingEnvironment _appEnvironment;
+        private readonly ILogger<NewsController> _logger;
 
-        public NewsController(ApplicationContext context, IHostingEnvironment appEnvironment)
+        public NewsController(ApplicationContext context,
+            IHostingEnvironment appEnvironment,
+            ILogger<NewsController> logger)
         {
             db = context;
             _appEnvironment = appEnvironment;
+            _logger = logger;
         }
 
 
-        public IActionResult Index(string message = "")
+        public IActionResult Index()
         {
-            ViewBag.Message = message;
-
             if (User.IsInRole("Admin"))
                 return View(db.News.Include(x => x.Author).Include(x => x.Picture).Reverse().ToArray());
             
@@ -52,6 +55,9 @@ namespace DNetCMS.Controllers
                 return View(model);
             }
 
+            _logger.LogDebug("Create news action started!");
+            _logger.LogTrace("Create news action started with model = {@model}");
+            
             string header = model.Header.Replace(".", string.Empty).Replace(",", string.Empty).Replace(" ", string.Empty).ToLower();
 
             News plagiat = await db.News.FirstOrDefaultAsync(x => x.Header.Replace(".", string.Empty).Replace(",", string.Empty).
@@ -63,6 +69,7 @@ namespace DNetCMS.Controllers
                 return View(model);
             }
             
+            _logger.LogDebug("Try create new news");
             News news = new News
             {
                 Header = model.Header,
@@ -73,20 +80,27 @@ namespace DNetCMS.Controllers
 
             if (model.Picture != null)
             {
+                _logger.LogDebug("Found image, try to add it");
+                
                 string path = "/Files/" + model.Picture.FileName;
 
                 using (var fileStream = new FileStream(_appEnvironment.WebRootPath + path, FileMode.Create))
                 {
                     await model.Picture.CopyToAsync(fileStream);
                 }
-
+                
                 FileModel file = new FileModel { Name = model.Picture.FileName, Path = path };
                 await db.Files.AddAsync(file);
                 news.Picture = file;
+                _logger.LogTrace("Image successfully add with file = {@file}");
+                _logger.LogDebug("Image successfully added");
             }
             
             await db.News.AddAsync(news);
             await db.SaveChangesAsync();
+            _logger.LogDebug("Create news action finished!");
+
+            HttpContext.Items["SuccessMessage"] = "Новость успешно добавлена!";
 
             return RedirectToAction("Index");
         }
@@ -95,8 +109,11 @@ namespace DNetCMS.Controllers
         {
             News news = await db.News.Include(x => x.Author).FirstOrDefaultAsync(x => x.Id == id);
 
-            if(news == null || news.Author.UserName != User.Identity.Name)
+            if (news == null || news.Author.UserName != User.Identity.Name && (User.HasClaim("AccessLevel", "ModeratorAccess")))
+            {
+                HttpContext.Items["ErrorMessage"] = (news == null)? "Новость не найдена." : "Вы не являетесь автором новости.";
                 return RedirectToAction("Index");
+            }
 
             NewsViewModel model = new NewsViewModel
             {

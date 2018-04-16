@@ -40,7 +40,7 @@ namespace DNetCMS.Controllers
         public async Task<IActionResult> Index()
         {
             User user = await _userManager.FindByNameAsync(User.Identity.Name);
-            
+            _logger.LogTrace("Account/Index: return user {@user}");
             return View(user);
         }
         

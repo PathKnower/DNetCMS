@@ -19,6 +19,7 @@ using DNetCMS.Extensions;
 using DNetCMS.Interfaces;
 using DNetCMS.Middleware;
 using DNetCMS.Modules.Processing;
+using Microsoft.AspNetCore.DataProtection;
 
 namespace DNetCMS
 {
@@ -46,6 +47,7 @@ namespace DNetCMS
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            //TODO: не забыть сменить среду на продакшн
             services.AddDbContext<ApplicationContext>(options => 
                 options.UseNpgsql(CmsConfiguration.GetSection("Database")["ConnectionString"]), ServiceLifetime.Singleton);
             
@@ -74,15 +76,9 @@ namespace DNetCMS
             services.AddMvc();
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory logger)
         {
             app.UseMiddleware(typeof(ExceptionHandler));
-
-            // using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
-            // {
-            //     serviceScope.ServiceProvider.GetService<ApplicationContext>().Database.Migrate();
-            // }
             
             if (env.IsDevelopment())
             {
@@ -95,8 +91,6 @@ namespace DNetCMS
             }
 
             app.UseStaticFiles();
-
-            //logger.AddConsole();
 
             app.UseAuthentication();
 

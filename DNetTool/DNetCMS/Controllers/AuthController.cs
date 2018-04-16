@@ -75,17 +75,6 @@ namespace DNetCMS.Controllers
                     await _signInManager.PasswordSignInAsync(model.Username, model.Password, model.RememberMe, false);
                 if (result.Succeeded)
                 {
-                    var roles = _userManager.GetRolesAsync(await _userManager.FindByNameAsync(model.Username));
-                    if (roles != null)
-                    {
-                        
-                    }
-                    
-                    //ClaimsIdentity claim = new ClaimsIdentity();
-                    
-                    
-                    //User.AddIdentity();
-                    
                     // проверяем, принадлежит ли URL приложению
                     if (!string.IsNullOrEmpty(model.ReturnUrl) && Url.IsLocalUrl(model.ReturnUrl))
                     {

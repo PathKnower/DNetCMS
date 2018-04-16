@@ -2,6 +2,7 @@
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Mvc;
@@ -54,6 +55,11 @@ namespace DNetCMS.Controllers
 
             int result;
 
+            _logger.LogDebug("UploadFile action started");
+            _logger.LogTrace("Upload file with model {@model}");
+            
+            
+            _logger.LogDebug("Try upload file to server");
             if (string.IsNullOrEmpty(model.TargetUse))
                 result =  await _fileProcessing.UploadFile(model.File);
             else
@@ -72,16 +78,17 @@ namespace DNetCMS.Controllers
                         fileType = Enums.FileType.ToStore;
                         break;
                 }
-
+                
                 result = await _fileProcessing.UploadFile(model.File, fileType);
             }
 
-            if(result >= 0)
+            if(result <= 0)
             {
                 ModelState.AddModelError("CommonMessage", " Непредвиденная ошибка при загрузке аватара.");
                 return View(model);
             }
-
+            _logger.LogDebug("File upload successfully with id = {result}");
+            
             return RedirectToAction("Index");
         }
 
@@ -90,8 +97,12 @@ namespace DNetCMS.Controllers
             FileModel file = db.Files.FirstOrDefault(x => x.Id == id);
 
             if (file == null)
-                return NotFound("Файл не найден.");
-
+            {
+                HttpContext.Items["ErrorMessage"] = "Файл не найден.";
+                _logger.LogDebug("Not found file with id = {id}");
+                return RedirectToAction("Index");
+            }
+                
             return View(file);
         }
 
@@ -102,7 +113,11 @@ namespace DNetCMS.Controllers
             FileModel file = db.Files.FirstOrDefault(x => x.Id == id);
 
             if (file == null)
-                return NotFound("Файл не найден.");
+            {
+                HttpContext.Items["ErrorMessage"] = "Файл не найден.";
+                _logger.LogDebug("Not found file with id = {id}");
+                return RedirectToAction("Index");
+            }
 
             bool success = FileProcessing.RemoveFile(file.Path, appEnvironment.WebRootPath);
 
@@ -110,10 +125,12 @@ namespace DNetCMS.Controllers
             {
                 db.Files.Remove(file);
                 await db.SaveChangesAsync();
+                HttpContext.Items["SuccessMessage"] = "Файл успешно удалён.";
             }
             else
             {
-                //TODO: Общение с юзером
+                HttpContext.Items["ErrorMessage"] = "Не удалось удалить файл";
+                _logger.LogError("Failed to remove file from server with id = {id}");
                 return RedirectToAction("Index");
             }
 
