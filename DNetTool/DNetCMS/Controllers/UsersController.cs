@@ -5,6 +5,7 @@ using DNetCMS.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace DNetCMS.Controllers
 {
@@ -12,10 +13,12 @@ namespace DNetCMS.Controllers
     public class UsersController : Controller
     {
         UserManager<User> _userManager;
+        private ILogger<UsersController> _logger;
 
-        public UsersController(UserManager<User> userManager)
+        public UsersController(UserManager<User> userManager, ILogger<UsersController> logger)
         {
             _userManager = userManager;
+            _logger = logger;
         }
 
         public IActionResult Index()
@@ -62,6 +65,7 @@ namespace DNetCMS.Controllers
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
+                    _logger.LogDebug("Successfully created user = {@user}", user);
                     HttpContext.Items["SuccessMessage"] = "Пользователь успешно создан.";
                     return RedirectToAction("Index");
                 }
@@ -92,6 +96,7 @@ namespace DNetCMS.Controllers
                     var result = await _userManager.UpdateAsync(user);
                     if (result.Succeeded)
                     {
+                        _logger.LogDebug("Successfully update user = {id}", user.Id);
                         HttpContext.Items["SuccessMessage"] = "Изменения успешно сохранены.";
                         return RedirectToAction("Index");
                     }
@@ -116,8 +121,11 @@ namespace DNetCMS.Controllers
             if (user != null)
             {
                 IdentityResult result = await _userManager.DeleteAsync(user);
-                if(result.Succeeded)
+                if (result.Succeeded)
+                {
                     HttpContext.Items["SuccessMessage"] = "Пользователь успешно удален.";
+                    _logger.LogInformation("Successfully delete user = {@id}, by admin = {admin}", user, User.Identity.Name);
+                }
                 else
                     HttpContext.Items["ErrorMessage"] = "Не удалось удалить пользователя.";
             }

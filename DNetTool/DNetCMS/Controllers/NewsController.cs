@@ -56,7 +56,7 @@ namespace DNetCMS.Controllers
             }
 
             _logger.LogDebug("Create news action started!");
-            _logger.LogTrace("Create news action started with model = {@model}");
+            _logger.LogTrace("Create news action started with model = {@model}", model);
             
             string header = model.Header.Replace(".", string.Empty).Replace(",", string.Empty).Replace(" ", string.Empty).ToLower();
 
@@ -92,7 +92,7 @@ namespace DNetCMS.Controllers
                 FileModel file = new FileModel { Name = model.Picture.FileName, Path = path };
                 await db.Files.AddAsync(file);
                 news.Picture = file;
-                _logger.LogTrace("Image successfully add with file = {@file}");
+                _logger.LogTrace("Image successfully add with file = {@file}", file);
                 _logger.LogDebug("Image successfully added");
             }
             
@@ -132,19 +132,30 @@ namespace DNetCMS.Controllers
                 return View(model);
 
             News news = await db.News.Include(x => x.Author).FirstOrDefaultAsync(x => x.Id == model.Id);
-            
-            if (news == null)
-                return NotFound("Исходная новость не найдена.");
 
-            if(!User.IsInRole("admin") && news.Author.UserName != User.Identity.Name)
-                return BadRequest("Нельзя изменить чужую новость.");
-            
+            if (news == null)
+            {
+                _logger.LogWarning("Editable news not found {model.Id}!", model.Id);
+                HttpContext.Items["ErrorMessage"] = "Запрашиваемая новость не найдена";
+                return RedirectToAction("Index");
+            }
+
+
+            if (!User.IsInRole("admin") && news.Author.UserName != User.Identity.Name)
+            {
+                _logger.LogWarning("User {User.Identity.Name} try to edit news {@news}", news);
+                HttpContext.Items["ErrorMessage"] = "Вы не являетесь владельцем новости.";
+                return RedirectToAction("Index");
+            }
+
+            _logger.LogDebug("Edit news action started!");
                 
             news.Content = model.Content;
             news.Header = model.Header;
 
             if (model.Picture != null)
             {
+                _logger.LogDebug("Try to upload image");
                 string path = "/Files/" + model.Picture.FileName;
 
                 using (var fileStream = new FileStream(_appEnvironment.WebRootPath + path, FileMode.Create))
@@ -155,11 +166,15 @@ namespace DNetCMS.Controllers
                 FileModel file = new FileModel { Name = model.Picture.FileName, Path = path };
                 await db.Files.AddAsync(file);
                 news.Picture = file;
+                _logger.LogTrace("Image successfully add with file = {@file}", file);
+                _logger.LogDebug("Image successfully added");
             }
             
-            db.Entry(news).State = EntityState.Modified;
-
+            db.News.Update(news);
             await db.SaveChangesAsync();
+            _logger.LogDebug("Create news action finished!");
+
+            HttpContext.Items["SuccessMessage"] = "Новость успешно изменена!";
 
             return RedirectToAction("Index");
         }
@@ -168,8 +183,10 @@ namespace DNetCMS.Controllers
         {
             News news = await db.News.Include(x => x.Author).FirstOrDefaultAsync(x => x.Id == id);
 
-            if(news == null || news.Author.UserName != User.Identity.Name)
-                return RedirectToAction("Index");
+            if (news == null || news.Author.UserName != User.Identity.Name)
+            {
+                
+            }
 
             NewsViewModel model = new NewsViewModel
             {
@@ -189,10 +206,19 @@ namespace DNetCMS.Controllers
             News news = await db.News.Include(x => x.Author).Include(x => x.Picture).FirstOrDefaultAsync(x => x.Id == id);
 
             if (news == null)
-                return NotFound("Новость не найдена.");
+            {
+                _logger.LogWarning("Editable news not found {id}!", id);
+                HttpContext.Items["ErrorMessage"] = "Запрашиваемая новость не найдена";
+                return RedirectToAction("Index");
+            }
 
-            if(!User.IsInRole("admin") && news.Author.UserName != User.Identity.Name)
-                return BadRequest("Нельзя удалить чужую новость.");
+
+            if (!User.IsInRole("admin") && news.Author.UserName != User.Identity.Name)
+            {
+                _logger.LogWarning("User {User.Identity.Name} try to edit news {@news}", news);
+                HttpContext.Items["ErrorMessage"] = "Вы не являетесь владельцем новости";
+                return RedirectToAction("Index");
+            }
             
             db.News.Remove(news);
             await db.SaveChangesAsync();
@@ -202,9 +228,16 @@ namespace DNetCMS.Controllers
                 FileInfo info = new FileInfo(_appEnvironment.WebRootPath + news.Picture.Path);
 
                 if (info.Exists)
+                {
                     info.Delete();
+                    _logger.LogDebug("Successfull delete file from server");
+                }
+                
             }
 
+            _logger.LogDebug("Delete news with id = {id}", id);
+            HttpContext.Items["SuccessMessage"] = "Файл успешно удален";
+            
             return RedirectToAction("Index");
         }
     }

@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 
 using DNetCMS.Models.DataContract;
 using DNetCMS.Models.ViewModels.StaticViews;
+using DNetCMS.Modules.Processing;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -20,16 +21,18 @@ namespace DNetCMS.Controllers
         ApplicationContext db;
         IHostingEnvironment _environment;
         IConfiguration _configuration;
-        //ILogger<StaticViewsController> _logger;
+        ILogger<StaticViewsController> _logger;
 
         public StaticViewsController(ApplicationContext context,
             IHostingEnvironment environment,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            ILogger<StaticViewsController> logger,
+            FileProcessing fileProcessing)
         {
             db = context;
             _environment = environment;
             _configuration = configuration;
-            //_logger = 
+            _logger = logger;
         }
 
         public IActionResult Index()
@@ -94,7 +97,10 @@ namespace DNetCMS.Controllers
                 ModelState.AddModelError("Route", "Данный файл уже существует.");
                 return View(model);
             }
-
+            
+            _logger.LogDebug("Create static view method started with model = {@model}", model);
+            
+            _logger.LogDebug("Calculate path");
             string[] dirs = model.Route.Split('/');
             if (dirs.Length > 1)
             {
@@ -105,8 +111,10 @@ namespace DNetCMS.Controllers
                     if (!Directory.Exists(fullPath))
                         Directory.CreateDirectory(fullPath);
                 }
+                _logger.LogTrace("Path of new view = {fullpath}", fullPath);
             }
-
+            
+            
             staticView.Create();
             if (WriteToFile(model.Content, staticView.FullName))
             {
@@ -116,11 +124,16 @@ namespace DNetCMS.Controllers
                     Route = model.Route,
                     Path = staticView.FullName
                 };
-
+                
+                _logger.LogDebug("Try to create static page with params = {@view}", view);
                 await db.StaticViews.AddAsync(view);
                 await db.SaveChangesAsync();
+                _logger.LogDebug("Create static view action success!");
+                HttpContext.Items["SuccessMessage"] = "";
             }
-            HttpContext.Items["Success"] = "";
+            else
+                HttpContext.Items["ErrorMessage"] = "Не удалось создать файл статической страницы, проверьте ваши права доступа";
+            
             return RedirectToAction("Index");
         }
 
@@ -139,17 +152,25 @@ namespace DNetCMS.Controllers
 
             StaticView view = db.StaticViews.FirstOrDefault(x => x.Id == model.Id);
             if (view == null)
-                return NotFound("Указанная статическая страница не найдена.");
-
+            {
+                _logger.LogDebug("Cannot find static view with id = {id}", model.Id);
+                HttpContext.Items["ErrorMessage"] = "Указанная, для редактирования, статическая страница не найдена";
+                return RedirectToAction("Index");
+            }
+                
+            _logger.LogDebug("Edit static view action started with model = {@model}", model);
+            
+            _logger.LogDebug("Check new file location");
             FileInfo staticView = new FileInfo(_environment.WebRootPath + $"/Generic/{model.Route}.html");
             if (view.Path != $"/Generic/{model.Route}.html")
             {
                 if (staticView.Exists)
                 {
-                    ModelState.AddModelError("Route", "Данный файл уже существует.");
+                    ModelState.AddModelError("Route", "Данный файл уже существует и не может быть переписан");
                     return View(model);
                 }
 
+                _logger.LogDebug("Old and new location doesn't match. Create new file");
                 string[] dirs = model.Route.Split('/');
                 if (dirs.Length > 1)
                 {
@@ -163,18 +184,29 @@ namespace DNetCMS.Controllers
                 }
 
                 staticView.Create();
-            }
 
+                _logger.LogDebug("Delete old file");
+                FileInfo oldView = new FileInfo(_environment.WebRootPath + view.Path);
+                if(oldView.Exists)
+                    oldView.Delete();
+            }
+            
+            
+            _logger.LogDebug("Try to write new content to the file");
             if(WriteToFile(model.Content, staticView.FullName))
             {
                 view.Name = model.Name;
                 view.Path = staticView.FullName;
                 view.Route = model.Route;
-
+                _logger.LogDebug("Success writing to file. Update the view");
                 db.StaticViews.Update(view);
                 await db.SaveChangesAsync();
+                _logger.LogDebug("Successfull update the static view");
+                HttpContext.Items["SuccessMessage"] = "Обновление статичной страницы успешно!";
             }
-            HttpContext.Items["SuccessMessage"] = "";
+            else
+                HttpContext.Items["ErrorMessage"] = "Не удалось создать файл статической страницы, проверьте ваши права доступа";
+            
             return RedirectToAction("Index");
         }
 
@@ -222,7 +254,8 @@ namespace DNetCMS.Controllers
                 HttpContext.Items["ErrorMessage"] = "Данная статическая страница не найдена.";
                 return RedirectToAction("Index");
             }
-                
+            
+            _logger.LogDebug("RemoveView action started! Try to remove static view = {@view}", view);
 
             FileInfo file = new FileInfo(view.Path);
             if (file.Exists)
@@ -230,7 +263,8 @@ namespace DNetCMS.Controllers
 
             db.StaticViews.Remove(view);
             await db.SaveChangesAsync();
-
+            _logger.LogDebug("Successfully remove static view");
+            
             HttpContext.Items["SuccessMessage"] = "Статическая страница успешно удалена.";
             return RedirectToAction("Index");
         }

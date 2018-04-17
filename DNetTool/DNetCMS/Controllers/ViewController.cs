@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.IO;
-
+using System.Runtime.InteropServices.ComTypes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Hosting;
@@ -11,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 
 using DNetCMS.Models.DataContract;
 using DNetCMS.Models.ViewModels.View;
+using Microsoft.Extensions.Logging;
 
 namespace DNetCMS.Controllers
 {
@@ -20,13 +21,18 @@ namespace DNetCMS.Controllers
         private readonly ApplicationContext db;
         private readonly IConfiguration _configuration;
         private readonly IHostingEnvironment _environment;
+        private readonly ILogger<ViewController> _logger;
         
 
-        public ViewController(ApplicationContext context, IConfiguration configuration, IHostingEnvironment environment)
+        public ViewController(ApplicationContext context, 
+            IConfiguration configuration, 
+            IHostingEnvironment environment,
+            ILogger<ViewController> logger)
         {
             db = context;
             _configuration = configuration;
             _environment = environment;
+            _logger = logger;
         }
 
         public IActionResult Index()
@@ -34,12 +40,10 @@ namespace DNetCMS.Controllers
             bool.TryParse(_configuration.GetSection("Views")["OverrideBaseViews"], out bool canOverride);
             if(canOverride)
                 return View(db.ViewOverrides.ToArray());
-            else
-            {
-                HttpContext.Items["NoOverride"] = "К сожалению, невозможно изменить базовые представления. В найстройках программы, нет разрешения на это.";
-                //TODO: Create change configuration action (Admin controller)
-                return View();
-            }
+            
+            HttpContext.Items["NoOverride"] = "К сожалению, невозможно изменить базовые представления. В найстройках программы, нет разрешения на это.";
+            //TODO: Create change configuration action (Admin controller)
+            return View();
         }
 
         public IActionResult Create()
@@ -61,6 +65,26 @@ namespace DNetCMS.Controllers
             return View();
         }
 
+        public IActionResult EnableView(string view, bool enable)
+        {
+            BaseViewOverride viewOverride = db.ViewOverrides.FirstOrDefault(x => x.View == view);
+            if (viewOverride == null)
+            {
+                HttpContext.Items["ErrorMessage"] = "Не удалось найти переписанную вами страницу.";
+                return RedirectToAction("Index");
+            }
+            
+            _logger.LogDebug("Enable view action start for view = {@viewOverrid}", viewOverride);
+            viewOverride.Enable = enable;
+
+            db.ViewOverrides.Update(viewOverride);
+            db.SaveChanges();
+            
+            _logger.LogInformation("View = {@view}, was switch enable state to {enable}", viewOverride, enable);
+            
+            return RedirectToAction("Index");
+        }
+
         [HttpPost]
         public IActionResult Create(CreateReplaceViewModel model)
         {
@@ -78,20 +102,23 @@ namespace DNetCMS.Controllers
                 return View(model);
             }
 
+            _logger.LogDebug("Create overridable view action started");
             var viewsPath = _configuration.GetSection("Views")["NewBaseViewsPath"];
             viewsPath = viewsPath[0] == '/' ? viewsPath : viewsPath.Insert(0, "/");
             viewsPath = viewsPath.Last() == '/' ? viewsPath : viewsPath.Append('/').ToString();
 
+            _logger.LogDebug("Check directory existance");
             if (Directory.Exists(_environment.WebRootPath + viewsPath))
                 Directory.CreateDirectory(_environment.WebRootPath + viewsPath);
 
             FileInfo fileInfo = new FileInfo($"{_environment.WebRootPath}{viewsPath}{model.ChoosenView}.cshtml");
             if(fileInfo.Exists)
             {
-                HttpContext.Items["Error"] = "Файл перезаписи для данного представления уже существует.";
+                HttpContext.Items["ErrorMessage"] = "Файл перезаписи для данного представления уже существует.";
                 return RedirectToAction("Index");
             }
 
+            _logger.LogDebug("Try to create file");
             try
             {
                 StreamWriter sw = fileInfo.CreateText();
@@ -100,9 +127,10 @@ namespace DNetCMS.Controllers
             }
             catch (Exception)
             {
-                HttpContext.Items["Error"] = "Не удалось записать в новый файл ваш код. Проверьте ваши права в системе.";
+                HttpContext.Items["ErrorMessage"] = "Не удалось записать в новый файл ваш код. Проверьте ваши права в системе.";
                 return RedirectToAction("Index");
             }
+            _logger.LogDebug("File successfully created, create view entity model");
 
             BaseViewOverride viewOverride = new BaseViewOverride
             {
@@ -113,12 +141,21 @@ namespace DNetCMS.Controllers
 
             db.ViewOverrides.Add(viewOverride);
             db.SaveChanges();
-
+            _logger.LogInformation("New overridable page created! View = {@view}", viewOverride);
+            
             if(model.Enable)
-                HttpContext.Items["Success"] = $"Перезапись представления \"{model.ChoosenView}\" успешно создана и активирована!";
+                HttpContext.Items["SuccessMessage"] = $"Перезапись представления \"{model.ChoosenView}\" успешно создана и активирована!";
             else
-                HttpContext.Items["Success"] = $"Перезапись представления \"{model.ChoosenView}\" успешно создана! Вы можете активировать её в любой момент.";
+                HttpContext.Items["SuccessMessage"] = $"Перезапись представления \"{model.ChoosenView}\" успешно создана! Вы можете активировать её в любой момент.";
 
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Edit(int some)
+        {
+            
+            
             return RedirectToAction("Index");
         }
 

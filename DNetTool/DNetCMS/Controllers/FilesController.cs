@@ -56,7 +56,7 @@ namespace DNetCMS.Controllers
             int result;
 
             _logger.LogDebug("UploadFile action started");
-            _logger.LogTrace("Upload file with model {@model}");
+            _logger.LogTrace("Upload file with model {@model}", model);
             
             
             _logger.LogDebug("Try upload file to server");
@@ -87,7 +87,7 @@ namespace DNetCMS.Controllers
                 ModelState.AddModelError("CommonMessage", " Непредвиденная ошибка при загрузке аватара.");
                 return View(model);
             }
-            _logger.LogDebug("File upload successfully with id = {result}");
+            _logger.LogDebug("File upload successfully with id = {result}", result);
             
             return RedirectToAction("Index");
         }
@@ -99,7 +99,7 @@ namespace DNetCMS.Controllers
             if (file == null)
             {
                 HttpContext.Items["ErrorMessage"] = "Файл не найден.";
-                _logger.LogDebug("Not found file with id = {id}");
+                _logger.LogDebug("Not found file with id = {id}", id);
                 return RedirectToAction("Index");
             }
                 
@@ -115,7 +115,7 @@ namespace DNetCMS.Controllers
             if (file == null)
             {
                 HttpContext.Items["ErrorMessage"] = "Файл не найден.";
-                _logger.LogDebug("Not found file with id = {id}");
+                _logger.LogDebug("Not found file with id = {id}", id);
                 return RedirectToAction("Index");
             }
 
@@ -130,7 +130,7 @@ namespace DNetCMS.Controllers
             else
             {
                 HttpContext.Items["ErrorMessage"] = "Не удалось удалить файл";
-                _logger.LogError("Failed to remove file from server with id = {id}");
+                _logger.LogError("Failed to remove file from server with id = {id}", id);
                 return RedirectToAction("Index");
             }
 

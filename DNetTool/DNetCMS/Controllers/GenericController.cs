@@ -38,7 +38,7 @@ namespace DNetCMS.Controllers
             StaticView view = await db.StaticViews.FirstOrDefaultAsync(x => x.Route == route);
             if (view == null)
             {
-                _logger.LogWarning("Not found static page with route = {route}");
+                _logger.LogWarning("Not found static page with route = {route}", route);
                 return NotFound("Страница не найдена.");
             }
                 
