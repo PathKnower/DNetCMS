@@ -3,8 +3,12 @@ using System.IO;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
-using Serilog;
-using Serilog.Events;
+using Microsoft.Extensions.Logging;
+using NLog;
+using NLog.Fluent;
+using NLog.Web;
+using NLog.Web.AspNetCore;
+
 
 namespace DNetCMS
 {
@@ -13,40 +17,32 @@ namespace DNetCMS
         public static IConfiguration Configuration { get; } = new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory())
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-            .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production"}.json", optional: true)
+            //.AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production"}.json", optional: true)
             .AddEnvironmentVariables()
             .Build();
         
         public static void Main(string[] args)
         {
-//            Log.Logger =  new LoggerConfiguration()
-//                .MinimumLevel.Debug()
-//                .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
-//                .Enrich.FromLogContext()
-//                .WriteTo.Console()
-//                .CreateLogger();
+            LogManager.Configuration = new NLog.Config.XmlLoggingConfiguration("Configurations/nlog.config", true);
 
-            var logger = new LoggerConfiguration()
-                .ReadFrom.Configuration(Configuration)
-                .CreateLogger();
-            
-            Log.Logger = logger;
+            //var logger = NLogBuilder.ConfigureNLog("nlog.config").GetCurrentClassLogger();
+            var logger = LogManager.GetCurrentClassLogger();
             
             try
             {
-                Log.Information("Standing by...");
+                logger.Info("Standing by...");
                 var webHost = BuildWebHost(args);
                 
-                Log.Information("Starting application");
+                logger.Info("Starting application");
                 webHost.Run();
             }
             catch (Exception ex)
             {
-                Log.Fatal(ex, "Host terminated unexpectedly");
+                logger.Fatal(ex, "Host terminated unexpectedly");
             }
             finally
             {
-                Log.CloseAndFlush();
+                LogManager.Shutdown();
             }
             
         }
@@ -55,7 +51,12 @@ namespace DNetCMS
             WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>()
                 .UseConfiguration(Configuration)
-                .UseSerilog()
+                .ConfigureLogging(logging =>
+                {
+                    logging.ClearProviders();
+                    logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
+                })
+                .UseNLog()
                 .Build();
 
         //public static IWebHostBuilder CreateDefaultBuilder(string[] args)

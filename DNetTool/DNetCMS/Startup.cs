@@ -35,7 +35,7 @@ namespace DNetCMS
             _env = environment;
 
             var builder = new ConfigurationBuilder().SetBasePath(_env.ContentRootPath);
-            builder.AddJsonFile("DNetSettings.json", optional: false, reloadOnChange: true);
+            builder.AddJsonFile("Configurations/DNetSettings.json", optional: false, reloadOnChange: true);
 
             CmsConfiguration = builder.Build();
         }
@@ -49,7 +49,7 @@ namespace DNetCMS
         {
             //TODO: не забыть сменить среду на продакшн
             services.AddDbContext<ApplicationContext>(options => 
-                options.UseNpgsql(CmsConfiguration.GetSection("Database")["ConnectionString"]), ServiceLifetime.Singleton);
+                options.UseNpgsql(CmsConfiguration.GetSection("Database")["ConnectionString2"]), ServiceLifetime.Singleton);
             
             services.AddIdentity<User, IdentityRole>(options => 
             {

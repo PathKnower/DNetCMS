@@ -9,6 +9,7 @@ using DNetCMS.Extensions;
 using DNetCMS.Interfaces;
 using DNetCMS.Models.DataContract;
 using DNetCMS.Models.ViewModels;
+using Microsoft.Extensions.Logging;
 
 namespace DNetCMS.Controllers
 {
@@ -16,14 +17,17 @@ namespace DNetCMS.Controllers
     {
         //ApplicationContext db;
         private ICacheStore _cacheStore;
+        private ILogger<HomeController> _logger;
 
-        public HomeController(ICacheStore cacheStore) : base(cacheStore)
+        public HomeController(ICacheStore cacheStore, ILogger<HomeController> logger) : base(cacheStore)
         {
             _cacheStore = cacheStore;
+            _logger = logger;
         }
 
         public IActionResult Index()
         {
+            _logger.LogDebug("Index action!");
             return View();
         }
 
