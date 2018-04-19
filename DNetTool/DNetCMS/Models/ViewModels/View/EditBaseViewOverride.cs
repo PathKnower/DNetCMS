@@ -1,16 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace DNetCMS.Models.ViewModels.View
 {
-    public class CreateReplaceViewModel
+    public class EditBaseViewOverride
     {
         [Required]
         public string ChoosenView { get; set; }
+        
+        public string OldView { get; set; }
 
         public SelectList Views { get; set; }
 

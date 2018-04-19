@@ -47,9 +47,11 @@ namespace DNetCMS
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            string dbSection = _env.IsDevelopment() ? "Debug" : "Production";
+            
             //TODO: не забыть сменить среду на продакшн
             services.AddDbContext<ApplicationContext>(options => 
-                options.UseNpgsql(CmsConfiguration.GetSection("Database")["ConnectionString2"]), ServiceLifetime.Singleton);
+                options.UseNpgsql(CmsConfiguration.GetSection("Database")[dbSection]), ServiceLifetime.Singleton);
             
             services.AddIdentity<User, IdentityRole>(options => 
             {

@@ -1,8 +1,8 @@
 ﻿{
   "Database": {
     "DatabaseProvider": "Postresql",
-    "ConnectionString": "User ID=dnetcms;Password=EhyZCF5Br;Host=db;Port=5432;Database=DNetCMS;Pooling=true;",
-    "ConnectionString2" : "User ID=wardef;Password=thezevs1;Host=localhost;Port=5432;Database=DNetCMS;Pooling=true;"
+    "Production": "User ID=dnetcms;Password=EhyZCF5Br;Host=db;Port=5432;Database=DNetCMS;Pooling=true;",
+    "Debug" : "User ID=wardef;Password=thezevs1;Host=localhost;Port=5432;Database=DNetCMS;Pooling=true;"
   },
   "Views": {
     "OverrideBaseViews":  "true",

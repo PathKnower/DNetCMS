@@ -18,10 +18,10 @@ namespace DNetCMS.Controllers
     [Authorize(Policy = "AdminAccess")]
     public class StaticViewsController : Controller
     {
-        ApplicationContext db;
-        IHostingEnvironment _environment;
+        readonly ApplicationContext db;
+        readonly IHostingEnvironment _environment;
         IConfiguration _configuration;
-        ILogger<StaticViewsController> _logger;
+        readonly ILogger<StaticViewsController> _logger;
 
         public StaticViewsController(ApplicationContext context,
             IHostingEnvironment environment,

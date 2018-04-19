@@ -11,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 
 using DNetCMS.Models.DataContract;
 using DNetCMS.Models.ViewModels.View;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
 
 namespace DNetCMS.Controllers
@@ -48,20 +49,48 @@ namespace DNetCMS.Controllers
 
         public IActionResult Create()
         {
-            var model = new CreateReplaceViewModel {Views = GetNotOverrideViews().ToArray()};
+            var model = new CreateReplaceViewModel {Views = new SelectList(GetNotOverrideViews())};
 
             return View(model);
         }
 
-        public IActionResult Edit()
+        public IActionResult Edit(string view)
         {
-            //TODO: Дописать полноценную CED логику
 
-            return View();
+            BaseViewOverride viewOverride = db.ViewOverrides.FirstOrDefault(x => x.View == view);
+            if (viewOverride == null)
+            {
+                HttpContext.Items["ErrorMessage"] = "Не удалось найти переписанную вами страницу.";
+                return RedirectToAction("Index");
+            }
+
+            EditBaseViewOverride model = new EditBaseViewOverride
+            {
+                ChoosenView = view,
+                OldView = viewOverride.View,
+                Enable = viewOverride.Enable,
+                Code = ReadFromFile(viewOverride.Path),
+                Views = new SelectList(GetNotOverrideViews())
+            };
+            
+            return View(model);
         }
 
-        public IActionResult Delete()
+        public IActionResult Delete(string viewName)
         {
+            BaseViewOverride viewOverride = db.ViewOverrides.FirstOrDefault(x => x.View == viewName);
+            if (viewOverride == null)
+            {
+                HttpContext.Items["ErrorMessage"] = "Не удалось найти переписанную вами страницу.";
+                return RedirectToAction("Index");
+            }
+
+            var model = new DeleteBaseViewOverride
+            {
+                ChoosenView = viewOverride.View,
+                Enable = viewOverride.Enable
+            };
+            
             return View();
         }
 
@@ -90,7 +119,7 @@ namespace DNetCMS.Controllers
         {
             if(!ModelState.IsValid)
             {
-                model.Views = GetNotOverrideViews().ToArray();
+                model.Views = new SelectList(GetNotOverrideViews());
                 return View(model);
             }
 
@@ -98,7 +127,7 @@ namespace DNetCMS.Controllers
             if (!temp.Contains(model.ChoosenView))
             {
                 ModelState.AddModelError("ChoosenView", "Нельяза переписать данное представление.");
-                model.Views = temp.ToArray();
+                model.Views = new SelectList(temp);
                 return View(model);
             }
 
@@ -111,7 +140,7 @@ namespace DNetCMS.Controllers
             if (Directory.Exists(_environment.WebRootPath + viewsPath))
                 Directory.CreateDirectory(_environment.WebRootPath + viewsPath);
 
-            FileInfo fileInfo = new FileInfo($"{_environment.WebRootPath}{viewsPath}{model.ChoosenView}.cshtml");
+            var fileInfo = new FileInfo($"{_environment.WebRootPath}{viewsPath}{model.ChoosenView}.cshtml");
             if(fileInfo.Exists)
             {
                 HttpContext.Items["ErrorMessage"] = "Файл перезаписи для данного представления уже существует.";
@@ -132,7 +161,7 @@ namespace DNetCMS.Controllers
             }
             _logger.LogDebug("File successfully created, create view entity model");
 
-            BaseViewOverride viewOverride = new BaseViewOverride
+            var viewOverride = new BaseViewOverride
             {
                 View = model.ChoosenView,
                 Path = fileInfo.FullName,
@@ -152,14 +181,116 @@ namespace DNetCMS.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(int some)
+        public async Task<IActionResult> Edit(EditBaseViewOverride model)
         {
+            if(!ModelState.IsValid)
+            {
+                model.Views = new SelectList(GetNotOverrideViews());
+                return View(model);
+            }
+
+            IEnumerable<string> temp = GetNotOverrideViews();
+            if (!temp.Contains(model.ChoosenView))
+            {
+                ModelState.AddModelError("ChoosenView", "Нельяза переписать данное представление.");
+                model.Views = new SelectList(temp);
+                return View(model);
+            }
+
+            _logger.LogDebug("Edit overridable view action started");
+
+            var viewOverride = db.ViewOverrides.FirstOrDefault(x => x.View == model.OldView);
+            if (viewOverride == null)
+            {
+                _logger.LogDebug($"Cannot find view override entity with view = {model.OldView}");
+                HttpContext.Items["ErrorMessage"] = "Не удалось найти изменяемую страницу";
+                return RedirectToAction("Index");
+            }
             
+            var viewsPath = _configuration.GetSection("Views")["NewBaseViewsPath"];
+            viewsPath = viewsPath[0] == '/' ? viewsPath : viewsPath.Insert(0, "/");
+            viewsPath = viewsPath.Last() == '/' ? viewsPath : viewsPath.Append('/').ToString();
+
+            _logger.LogDebug("Check directory existance");
+            if (Directory.Exists(_environment.WebRootPath + viewsPath))
+                Directory.CreateDirectory(_environment.WebRootPath + viewsPath);
+
             
+            var oldFile = new FileInfo(viewOverride.Path);
+            var fileInfo = new FileInfo($"{_environment.WebRootPath}{viewsPath}{model.ChoosenView}.cshtml");
+            if(fileInfo.Exists)
+            {
+                HttpContext.Items["ErrorMessage"] = "Файл перезаписи для данного представления уже существует.";
+                return RedirectToAction("Index");
+            }
+
+            _logger.LogDebug("Try to create file");
+            try
+            {
+                StreamWriter sw = fileInfo.CreateText();
+                sw.Write(model.Code);
+                sw.Close();
+            }
+            catch (Exception)
+            {
+                HttpContext.Items["ErrorMessage"] = "Не удалось записать в новый файл ваш код. Проверьте ваши права в системе.";
+                return RedirectToAction("Index");
+            }
+            _logger.LogDebug("File successfully created, create view entity model");
+
+            _logger.LogDebug("Remove old file on path = " + oldFile.FullName);
+            if(oldFile.Exists)
+                oldFile.Delete();
+            
+            viewOverride.Enable = model.Enable;
+            viewOverride.Path = fileInfo.FullName;
+            viewOverride.View = model.ChoosenView;
+
+            db.ViewOverrides.Update(viewOverride);
+            db.SaveChanges();
+            _logger.LogInformation($"Overridable page edited! View = {viewOverride.View}");
+            
+            if(model.Enable)
+                HttpContext.Items["SuccessMessage"] = $"Перезапись представления \"{model.ChoosenView}\" успешно создана и активирована!";
+            else
+                HttpContext.Items["SuccessMessage"] = $"Перезапись представления \"{model.ChoosenView}\" успешно создана! Вы можете активировать её в любой момент.";
+
             return RedirectToAction("Index");
         }
 
-        private IEnumerable<string> GetNotOverrideViews()
+        [HttpPost]
+        [ActionName("Delete")]
+        public async Task<IActionResult> Remove(string viewName)
+        {
+            BaseViewOverride viewOverride = db.ViewOverrides.FirstOrDefault(x => x.View == viewName);
+            if (viewOverride == null)
+            {
+                HttpContext.Items["ErrorMessage"] = "Не удалось найти переписанную вами страницу";
+                return RedirectToAction("Index");
+            }
+            
+            _logger.LogDebug($"Remove overridable view with viewname = {viewOverride.View}");
+            
+            var fileInfo = new FileInfo(viewOverride.Path);
+            
+            _logger.LogDebug("Try to delete view file");
+            
+            if(fileInfo.Exists)
+                fileInfo.Delete();
+            
+            _logger.LogDebug("Try to delete view from database");
+            db.ViewOverrides.Remove(viewOverride);
+            await db.SaveChangesAsync();
+            
+            _logger.LogDebug("Successfully remove overridable view");
+            HttpContext.Items["SuccessMessage"] = "Удаление страницы произведено успешно";
+            
+            return RedirectToAction("Index");
+        }
+        
+        
+        
+        private string[] GetNotOverrideViews()
         {
             string[] result = new string[]
             {
@@ -168,11 +299,25 @@ namespace DNetCMS.Controllers
 
             string[] overrideViews = db.ViewOverrides.Select(x => x.View).ToArray();
 
-            return result.Except(overrideViews);
+            return result.Except(overrideViews).ToArray();
+        }
+        
+        private string ReadFromFile(string filePath)
+        {
+            try
+            {
+                FileStream fs = new FileStream(filePath, FileMode.Open);
+                StreamReader sr = new StreamReader(fs);
+                string result = sr.ReadToEnd();
+                sr.Close();
+                fs.Close();
+                return result;
+            }
+            catch (Exception)
+            {
+                return "Ошибка чтения файла. Проверьте имеется ли доступ к файлам.";
+            }
         }
 
-        
-
-        //TODO: what to do....
     }
 }
