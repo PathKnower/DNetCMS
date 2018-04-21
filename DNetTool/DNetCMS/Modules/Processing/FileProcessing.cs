@@ -33,8 +33,6 @@ namespace DNetCMS.Modules.Processing
             _environment = environment;
             _logger = logger;
         }
-        
-        //TODO: Add logging
 
         /// <summary>
         /// Automaticly recognize file type and redirect to UploadFile method
@@ -59,26 +57,32 @@ namespace DNetCMS.Modules.Processing
             if (file == null)
                 return -1;
             
+            _logger.LogTrace($"Upload file method stared with filetype = {fileType.ToString()} and filename = {file.FileName}");
+            _logger.LogTrace("Compute hash from file");
             string hash = GetHashFromFile(file.OpenReadStream());
             string dir1, dir2;
 
+            _logger.LogTrace($"New file hash = {hash}");
+            _logger.LogTrace("Determine path for new file");
             switch (fileType)
             {
                 case Enums.FileType.Document:
-                    dir1 = _environment.WebRootPath + "/Documents/";
+                    dir1 = _environment.WebRootPath + "/Files/Documents/";
                     break;
                 case Enums.FileType.Picture:
-                    dir1 = _environment.WebRootPath + "/Picture/";
+                    dir1 = _environment.WebRootPath + "/Files/Picture/";
                     break;
                 case Enums.FileType.ToStore:
                 default:
-                    dir1 = _environment.WebRootPath + "/Storage/";
+                    dir1 = _environment.WebRootPath + "/Files/Storage/";
                     break;
             }
             
             dir1 += $"{hash.Substring(0, 2)}";
             dir2 = $"{dir1}/{hash.Substring(2, 2)}/";
-
+            
+            _logger.LogTrace($"End directory path = {dir2}");
+            _logger.LogTrace("Create directories");
             if (!Directory.Exists(dir1))
             {
                 Directory.CreateDirectory(dir1);
@@ -93,10 +97,23 @@ namespace DNetCMS.Modules.Processing
                 Name = file.FileName,
                 Path = dir2 + file.FileName
             };
+            _logger.LogTrace("Create file entity");
+            _logger.LogTrace("Try to save file on disk");
 
             using (var fileStream = new FileStream(_environment.WebRootPath + result.Path, FileMode.Create))
             {
-                await file.CopyToAsync(fileStream);
+                try
+                {
+                    await file.CopyToAsync(fileStream);
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError($"UploadFile method with file = {file.FileName}, hash = {hash} \n and final" +
+                                     $"path = {_environment.WebRootPath + result.Path} was thrown exception = {e.Message} \n " +
+                                     $"with stack trace = {e.StackTrace}");
+                    throw;
+                }
+                
             }
 
             await db.Files.AddAsync(result);
