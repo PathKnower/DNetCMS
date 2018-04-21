@@ -1,0 +1,28 @@
+@{
+    
+}
+
+<div>Навигация администратора</div>
+
+<div>
+    @if (Context.Items["ErrorMessage"] != null)
+    {
+        <div>
+            @Context.Items["ErrorMessage"].ToString()
+        </div>
+    }
+
+    @if (Context.Items["WarningMessage"] != null)
+    {
+        <div>
+            @Context.Items["WarningMessage"].ToString()
+        </div>
+    }
+
+    @if (Context.Items["SuccessMessage"] != null)
+    {
+        <div>
+            @Context.Items["SuccessMessage"].ToString()
+        </div>
+    }
+</div>

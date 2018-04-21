@@ -1,10 +1,10 @@
-﻿@model DNetCMS.Models.ViewModels.View.CreateReplaceViewModel
+﻿@model DNetCMS.Models.ViewModels.View.EditBaseViewOverride
 
 @{
     ViewBag.Title = "Перезапись страницы";
 }
 
-<h2>Перезапись базовой страницы</h2>
+<h2>Изменение базовой страницы</h2>
 
 <div>
     <a asp-action="Index">Вернуться к списку</a>
@@ -12,7 +12,7 @@
 
 <div class="row">
     <div class="col-md-12">
-        <form method="post" asp-action="Create">
+        <form method="post" asp-action="Edit">
             <div>
                 @Html.DisplayFor(m => m.ChoosenView)
                 @Html.DropDownListFor(m => m.ChoosenView, Model.Views)
@@ -28,7 +28,8 @@
                 @Html.EditorFor(m => m.Enable)
                 <span asp-validation-for="Enable"></span>
             </div>
-            <input type="submit" value="Создать"/>
+            @Html.HiddenFor(x => x.OldView)
+            <input type="submit" value="Изменить"/>
         </form>
     </div>
 </div>

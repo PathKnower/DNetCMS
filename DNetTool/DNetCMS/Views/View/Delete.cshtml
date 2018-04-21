@@ -1,0 +1,27 @@
+﻿@model DNetCMS.Models.ViewModels.View.DeleteBaseViewOverride
+
+@{
+    ViewBag.Title = "Удаление страницы";
+}
+
+<h2>Удаление перезаписи базовой страницы</h2>
+
+<div>
+    <a asp-action="Index">Вернуться к списку</a>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <form method="post" asp-action="Delete">
+            <div>
+                @Html.DisplayFor(m => m.ChoosenView)
+                @Html.LabelFor(m => m.ChoosenView)
+            </div>
+            <div>
+                @Html.DisplayFor(m => m.Enable)
+                @Html.LabelFor(m => m.Enable)
+            </div>
+            <input type="submit" value="Удалить"/>
+        </form>
+    </div>
+</div>

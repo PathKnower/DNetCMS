@@ -7,6 +7,11 @@
 
 <h2>Новая статическая страница</h2>
 
+<div>
+    <a asp-action="Index">Вернуться к списку</a>
+</div>
+
+
 <form asp-action="Create">
     <div>
         @Html.DisplayFor(m => m.Name)
@@ -25,7 +30,3 @@
     </div>
     <input type="submit" value="Создать"/>
 </form>
-
-<div>
-    <a asp-action="Index">Вернуться к списку</a>
-</div>

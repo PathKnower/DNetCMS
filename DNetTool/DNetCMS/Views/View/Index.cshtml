@@ -50,7 +50,10 @@
             <td>@m.View</td>
             <td>@IsEnable(m.Enable)</td>
             <td>@GetShortPath(m.Path)</td>
-            <td></td>
+            <td>
+                <a asp-action="Edit" asp-route-view="@m.View">Изменить</a> |
+                <a asp-action="Delete" asp-route-viewName="@m.View">Удалить</a>
+            </td>
         </tr>
         }
     </table>
@@ -66,6 +69,7 @@ else
 }
 
 @{
+    //TODO: попробовать сделать переключеине активности view асинхронно
 
     string IsEnable(bool enable)
     {
