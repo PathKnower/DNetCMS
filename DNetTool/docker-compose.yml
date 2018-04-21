@@ -53,6 +53,9 @@ services:
     image: nginx
     restart: always
     
+    depends_on: 
+      - dnetcms
+      
     #По хорошему надо бы свой образ, но так быстрее
     volumes: 
       - ./nginx.conf:/etc/nginx/nginx.conf

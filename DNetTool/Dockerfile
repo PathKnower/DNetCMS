@@ -7,16 +7,23 @@ WORKDIR /app
 EXPOSE 80
 
 WORKDIR /src
-COPY DNetCMS.sln ./
-COPY DNetCMS/DNetCMS.csproj DNetCMS/
+
+#For build full solution
+# COPY DNetCMS.sln ./
+# COPY DNetCMS/DNetCMS.csproj DNetCMS/
+
+COPY DNetCMS/DNetCMS.csproj ./
 RUN dotnet restore
-COPY . .
-WORKDIR /src/DNetCMS
+COPY DNetCMS .
+WORKDIR /src
 RUN dotnet build -c Release -o /app
 
 #Second (deploy) stage
 FROM build AS publish
 RUN dotnet publish -c Release -o /app
+
+#Remove all src
+RUN [ "rm" , "-rf", "/src"]
 
 FROM microsoft/aspnetcore:2.0.6-jessie AS base
 FROM base AS final
