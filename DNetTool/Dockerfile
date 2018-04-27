@@ -11,6 +11,9 @@ WORKDIR /src
 #For build full solution
 # COPY DNetCMS.sln ./
 # COPY DNetCMS/DNetCMS.csproj DNetCMS/
+# VOLUME [ "/app/Configurations" ]
+# VOLUME [ "/app/Logs" ]
+# VOLUME [ "/app/Files" ]
 
 COPY DNetCMS/DNetCMS.csproj ./
 RUN dotnet restore
@@ -29,6 +32,5 @@ FROM microsoft/aspnetcore:2.0.6-jessie AS base
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app .
-RUN [ "mkdir", "Files" ]
 
 ENTRYPOINT ["dotnet", "DNetCMS.dll"]
