@@ -15,7 +15,7 @@ using Microsoft.Extensions.Logging;
 
 namespace DNetCMS.Controllers
 {
-    //[Authorize(Policy = "AdminAccess")]
+    [Authorize(Policy = "AdminAccess")]
     public class RolesController : Controller
     {
         private readonly RoleManager<IdentityRole> _roleManager;

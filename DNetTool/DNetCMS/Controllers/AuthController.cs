@@ -93,7 +93,7 @@ namespace DNetCMS.Controllers
             return View(model);
         }
 
-        [ValidateAntiForgeryToken]
+        
         public async Task<IActionResult> LogOff()
         {
             // удаляем аутентификационные куки

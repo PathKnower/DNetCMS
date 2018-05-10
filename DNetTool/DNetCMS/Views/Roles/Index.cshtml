@@ -2,14 +2,16 @@
 
 @{
     ViewData["Title"] = "Роли";
+    Layout = "_AdminLayout";
 }
+
 
 <h2>Роли</h2>
 
-<a asp-controller="Roles" asp-action="Create">Создать роль</a> 
+<a class="btn btn-outline-primary" asp-controller="Roles" asp-action="Create">Создать роль</a> 
 
 <div>
-    <a asp-action="UserList">Список пользователей и их прав</a>
+    <a class="btn btn-outline-primary" asp-action="UserList">Список пользователей и их прав</a>
 </div>
 
 

@@ -4,12 +4,13 @@
 
 @{
     ViewData["Title"] = "Главная новости";
+    Layout = "_AdminLayout";
 }
 
 <h3>Все доступные новости</h3>
 
 <p>
-    <a asp-action="Create">Рассказать миру кое-что новое!</a>
+    <a class="btn btn-outline-primary" asp-action="Create" asp-controller="News" >Рассказать миру кое-что новое!</a>
 </p>
 <table class="table">
     <thead>
@@ -27,21 +28,25 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model)
-{
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Header)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CreateDate.ToString(CultureInfo.CurrentCulture))
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Изменить</a> |
-@*                <a asp-action="ShowNews" asp-controller="Home" asp-route-id="@item.Id">Посмотреть</a> |*@
-                <a asp-action="Delete" asp-route-id="@item.Id">Удалить</a>
-            </td>
-        </tr>
-}
+    @if (Model != null)
+    {
+        foreach (var item in Model)
+         {
+             <tr>
+                 <td>
+                     @Html.DisplayFor(modelItem => item.Header)
+                 </td>
+                 <td>
+                     @* @Html.DisplayFor(modelItem => item.CreateDate.ToString()) *@
+                 </td>
+                 <td>
+                     <a asp-action="Edit" asp-route-id="@item.Id">Изменить</a> |
+                     @*                <a asp-action="ShowNews" asp-controller="Home" asp-route-id="@item.Id">Посмотреть</a> |*@
+                     <a asp-action="Delete" asp-route-id="@item.Id">Удалить</a>
+                 </td>
+             </tr>
+         }
+    }
+    
     </tbody>
 </table>

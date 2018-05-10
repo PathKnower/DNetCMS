@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Authorization;
@@ -37,6 +38,10 @@ namespace DNetCMS.Controllers
 
         public IActionResult Index()
         {
+            HttpContext.Items["ErrorMessage"] = "Some error message";
+            HttpContext.Items["WarningMessage"] = "Some warning message";
+            HttpContext.Items["SuccessMessage"] = "Some success message";
+            
             return View();
         }
 

@@ -2,12 +2,13 @@
 
 @{
     ViewBag.Title = "Статические страницы";
+    Layout = "_AdminLayout";
 }
 
 <h2>Статические страницы</h2>
 
 <div>
-    <button asp-action="Create" class="btn btn-default">Создать новую страницу</button>
+    <a asp-action="Create" asp-controller="StaticViews" class="btn btn-outline-primary">Создать новую страницу</a>
 </div>
 
 <div>

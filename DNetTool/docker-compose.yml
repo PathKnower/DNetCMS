@@ -2,39 +2,11 @@ version: '3.2'
 
 services:
 
-  #CMS itself
-  dnetcms:
-    image: wardef/dnetcms:develop
-    restart: unless-stopped
-    # ports: 
-    #   - 5000:80
-    environment: 
-      ASPNETCORE_ENVIRONMENT: Development
-
-    # links:
-    #   - db
-    
-    depends_on:
-      - db  
-    
-    volumes:
-
-      - dnetdata:/app/Files
-      - dnetdata:/app/Configurations
-      - dnetdata:/app/Logs 
-      # - type: bind
-      #   source: /docker/dnetcms/Files
-      #   target: /app/Files
-        
-      # - type: bind
-      #   source: /docker/dnetcms/Logs
-      #   target: /app/Logs
-
-
   #Database
   db:
     image: postgres
-    restart: unless-stopped
+    restart: always
+    
     environment:
       #User
       POSTGRES_USER: dnetcms
@@ -42,8 +14,6 @@ services:
       POSTGRES_DB: DNetCMS
       #Password
       POSTGRES_PASSWORD: EhyZCF5Br
-      #Data location
-      #PGDATA: /tmp/postgres
 
     volumes:
       - /var/lib/postgresql/data:/var/lib/postgresql/data
@@ -52,18 +22,51 @@ services:
     #   - 2500:5432
 
 
+  #CMS itself
+  dnetcms:
+    image: wardef/dnetcms:develop
+    restart: always
+    
+    # ports: 
+    #   - 80:80
+    
+    deploy:
+      mode: replicated
+      replicas: 5
+    
+    environment: 
+      ASPNETCORE_ENVIRONMENT: Production
+      #ASPNETCORE_ENVIRONMENT: Development
+
+    links: 
+      - db
+    depends_on:
+      - db 
+       
+    volumes:
+      - dnetdata:/app/Files
+      - dnetdata:/app/Configurations
+      - dnetdata:/app/Logs 
+
+
+
   #Web host
   hots:
     image: nginx
     restart: always
-    
+
     depends_on: 
       - dnetcms
-      
+
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+
     #По хорошему надо бы свой образ, но так быстрее
     volumes: 
       - ./nginx.conf:/etc/nginx/nginx.conf
-
+      
     ports: 
       - 80:80
       - 443:443

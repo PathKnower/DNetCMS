@@ -11,9 +11,6 @@ WORKDIR /src
 #For build full solution
 # COPY DNetCMS.sln ./
 # COPY DNetCMS/DNetCMS.csproj DNetCMS/
-# VOLUME [ "/app/Configurations" ]
-# VOLUME [ "/app/Logs" ]
-# VOLUME [ "/app/Files" ]
 
 COPY DNetCMS/DNetCMS.csproj ./
 RUN dotnet restore

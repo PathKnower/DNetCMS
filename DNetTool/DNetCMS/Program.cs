@@ -50,6 +50,7 @@ namespace DNetCMS
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>()
+                //.UseEnvironment(Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"))
                 .UseConfiguration(Configuration)
                 .ConfigureLogging(logging =>
                 {

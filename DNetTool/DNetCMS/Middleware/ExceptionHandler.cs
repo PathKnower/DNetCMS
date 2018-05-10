@@ -29,7 +29,7 @@ namespace DNetCMS.Middleware
             }
             catch (Exception e)
             {
-                _logger.LogCritical("Cathed exception: {@e}");
+                _logger.LogCritical(e, "Cathed exception");
             }
         }
     }

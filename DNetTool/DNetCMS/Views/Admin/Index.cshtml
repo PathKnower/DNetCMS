@@ -3,28 +3,69 @@
     Layout = "_AdminLayout";
 }
 
-<div>Навигация администратора</div>
+
+<div class="text-center mb-4 m-4">
+    <h2 class="h2 mb-3 font-weight-normal">Навигация администратора</h2>
+</div>
 
 <div>
     @if (Context.Items["ErrorMessage"] != null)
     {
-        <div>
-            @Context.Items["ErrorMessage"].ToString()
+        <div class="alert alert-danger" >
+            <strong>Ошибка!</strong> @Context.Items["ErrorMessage"].ToString()
         </div>
     }
 
     @if (Context.Items["WarningMessage"] != null)
     {
-        <div>
-            @Context.Items["WarningMessage"].ToString()
+        <div class="alert alert-warning" >
+            <strong>Внимание!</strong> @Context.Items["WarningMessage"].ToString()
         </div>
     }
 
     @if (Context.Items["SuccessMessage"] != null)
     {
-        <div>
-            @Context.Items["SuccessMessage"].ToString()
+        <div class="alert alert-success">
+            <strong>Успешно!</strong> @Context.Items["SuccessMessage"].ToString()
         </div>
     }
 </div>
 
+<div class="row">
+    @if (User.HasClaim("AccessLevel", "Администратор"))
+    {
+        <div class="col">
+            <div class="card">
+                <div class="card-header bg-primary text-white">Управление страницами</div>
+                <div class="card-body">
+                    <a asp-controller="StaticViews" asp-action="Index">Статические страницы</a>
+                </div>
+                <div class="card-body">
+                    <a asp-controller="View" asp-action="Index">Базовые страницы</a>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card">
+                <div class="card-header bg-info text-white">Управление пользователями</div>
+                <div class="card-body">
+                    <a class="text-info" asp-controller="Users" asp-action="Index">Пользователи</a>
+                </div>
+                <div class="card-body">
+                    <a class="text-info" asp-controller="Roles" asp-action="Index">Роли и управление доступом</a>
+                </div>
+            </div>
+        </div>
+    }
+    <div class="col">
+        <div class="card">
+            <div class="card-header bg-success text-white">Управление контентом</div>
+            <div class="card-body">
+                <a class="text-success" asp-controller="News" asp-action="Index">Новости</a>
+            </div>
+            <div class="card-body">
+                <a class="text-success" asp-controller="Files" asp-action="Index">Файлы</a>
+            </div>
+        </div>
+    </div>
+</div>

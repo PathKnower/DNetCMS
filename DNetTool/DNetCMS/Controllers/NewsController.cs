@@ -19,7 +19,7 @@ namespace DNetCMS.Controllers
     [Authorize(Policy = "WriterAccess")]
     public class NewsController : Controller
     {
-        private readonly ApplicationContext db;
+        private readonly ApplicationContext _db;
         private readonly IHostingEnvironment _appEnvironment;
         private readonly ILogger<NewsController> _logger;
 
@@ -27,7 +27,7 @@ namespace DNetCMS.Controllers
             IHostingEnvironment appEnvironment,
             ILogger<NewsController> logger)
         {
-            db = context;
+            _db = context;
             _appEnvironment = appEnvironment;
             _logger = logger;
         }
@@ -35,11 +35,14 @@ namespace DNetCMS.Controllers
 
         public IActionResult Index()
         {
+            News[] result;
+
             if (User.IsInRole("Admin"))
-                return View(db.News.Include(x => x.Author).Include(x => x.Picture).Reverse().ToArray());
+                result = _db.News.Include(x => x.Author).Include(x => x.Picture).ToArray();
+            else
+                result = _db.News.Include(x => x.Author).Where(x => x.Author.UserName == User.Identity.Name).ToArray();
             
-            return View(db.News.Include(x => x.Author).
-                Where(x => x.Author.UserName == User.Identity.Name).Reverse().ToArray());
+            return View(result?.Reverse().ToArray());
         }
         
         public IActionResult Create()
@@ -60,7 +63,7 @@ namespace DNetCMS.Controllers
             
             string header = model.Header.Replace(".", string.Empty).Replace(",", string.Empty).Replace(" ", string.Empty).ToLower();
 
-            News plagiat = await db.News.FirstOrDefaultAsync(x => x.Header.Replace(".", string.Empty).Replace(",", string.Empty).
+            News plagiat = await _db.News.FirstOrDefaultAsync(x => x.Header.Replace(".", string.Empty).Replace(",", string.Empty).
             Replace(" ", string.Empty).ToLower() == header);
 
             if(plagiat != null)
@@ -74,8 +77,8 @@ namespace DNetCMS.Controllers
             {
                 Header = model.Header,
                 Content = model.Content,
-                Author = db.Users.FirstOrDefault(x => x.UserName == User.Identity.Name),
-                CreateDate = DateTime.Now
+                Author = _db.Users.FirstOrDefault(x => x.UserName == User.Identity.Name),
+                CreateDate = DateTime.UtcNow
             };
 
             if (model.Picture != null)
@@ -90,14 +93,14 @@ namespace DNetCMS.Controllers
                 }
                 
                 FileModel file = new FileModel { Name = model.Picture.FileName, Path = path };
-                await db.Files.AddAsync(file);
+                await _db.Files.AddAsync(file);
                 news.Picture = file;
                 _logger.LogTrace("Image successfully add with file = {@file}", file);
                 _logger.LogDebug("Image successfully added");
             }
             
-            await db.News.AddAsync(news);
-            await db.SaveChangesAsync();
+            await _db.News.AddAsync(news);
+            await _db.SaveChangesAsync();
             _logger.LogDebug("Create news action finished!");
 
             HttpContext.Items["SuccessMessage"] = "Новость успешно добавлена!";
@@ -107,7 +110,7 @@ namespace DNetCMS.Controllers
 
         public async Task<IActionResult> Edit(int id)
         {
-            News news = await db.News.Include(x => x.Author).FirstOrDefaultAsync(x => x.Id == id);
+            News news = await _db.News.Include(x => x.Author).FirstOrDefaultAsync(x => x.Id == id);
 
             if (news == null || news.Author.UserName != User.Identity.Name && (User.HasClaim("AccessLevel", "ModeratorAccess")))
             {
@@ -131,7 +134,7 @@ namespace DNetCMS.Controllers
             if(!ModelState.IsValid)
                 return View(model);
 
-            News news = await db.News.Include(x => x.Author).FirstOrDefaultAsync(x => x.Id == model.Id);
+            News news = await _db.News.Include(x => x.Author).FirstOrDefaultAsync(x => x.Id == model.Id);
 
             if (news == null)
             {
@@ -164,14 +167,14 @@ namespace DNetCMS.Controllers
                 }
 
                 FileModel file = new FileModel { Name = model.Picture.FileName, Path = path };
-                await db.Files.AddAsync(file);
+                await _db.Files.AddAsync(file);
                 news.Picture = file;
                 _logger.LogTrace("Image successfully add with file = {@file}", file);
                 _logger.LogDebug("Image successfully added");
             }
             
-            db.News.Update(news);
-            await db.SaveChangesAsync();
+            _db.News.Update(news);
+            await _db.SaveChangesAsync();
             _logger.LogDebug("Create news action finished!");
 
             HttpContext.Items["SuccessMessage"] = "Новость успешно изменена!";
@@ -181,7 +184,7 @@ namespace DNetCMS.Controllers
 
         public async Task<IActionResult> Delete(int id)
         {
-            News news = await db.News.Include(x => x.Author).FirstOrDefaultAsync(x => x.Id == id);
+            News news = await _db.News.Include(x => x.Author).FirstOrDefaultAsync(x => x.Id == id);
 
             if (news == null || news.Author.UserName != User.Identity.Name)
             {
@@ -203,7 +206,7 @@ namespace DNetCMS.Controllers
         [ActionName("Delete")]
         public async Task<IActionResult> DeleteConfirm(int id)
         {
-            News news = await db.News.Include(x => x.Author).Include(x => x.Picture).FirstOrDefaultAsync(x => x.Id == id);
+            News news = await _db.News.Include(x => x.Author).Include(x => x.Picture).FirstOrDefaultAsync(x => x.Id == id);
 
             if (news == null)
             {
@@ -220,8 +223,8 @@ namespace DNetCMS.Controllers
                 return RedirectToAction("Index");
             }
             
-            db.News.Remove(news);
-            await db.SaveChangesAsync();
+            _db.News.Remove(news);
+            await _db.SaveChangesAsync();
 
             if(news.Picture != null)
             {

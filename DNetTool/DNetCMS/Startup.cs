@@ -20,12 +20,14 @@ using DNetCMS.Interfaces;
 using DNetCMS.Middleware;
 using DNetCMS.Modules.Processing;
 using Microsoft.AspNetCore.DataProtection;
+using NLog;
 
 namespace DNetCMS
 {
     public class Startup
     {
         IHostingEnvironment _env;
+        private Logger _logger;
 
         public Startup(IConfiguration configuration, IHostingEnvironment environment)
         {
@@ -33,11 +35,14 @@ namespace DNetCMS
             Configuration = configuration;
 
             _env = environment;
+            
 
             var builder = new ConfigurationBuilder().SetBasePath(_env.ContentRootPath);
             builder.AddJsonFile("Configurations/DNetSettings.json", optional: false, reloadOnChange: true);
 
             CmsConfiguration = builder.Build();
+
+            _logger = LogManager.GetCurrentClassLogger();
         }
 
         public IConfiguration Configuration { get; }
@@ -47,9 +52,9 @@ namespace DNetCMS
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            string dbSection = _env.IsDevelopment() ? "Debug" : "Production";
-            
-            //TODO: не забыть сменить среду на продакшн
+            string dbSection = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Production" ? "Production" : "Debug"; 
+
+            _logger.Trace("Initial environment. Set database conf as " + dbSection);
             services.AddDbContext<ApplicationContext>(options => 
                 options.UseNpgsql(CmsConfiguration.GetSection("Database")[dbSection]), ServiceLifetime.Singleton);
             
