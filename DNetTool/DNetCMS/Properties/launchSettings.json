@@ -14,7 +14,16 @@
     },
     "DNetCMS": {
       "commandName": "Project",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
       "applicationUrl": "http://localhost:51464/"
+    },
+    "Development": {
+      "commandName": "Executable",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
     }
   }
 }
