@@ -1,8 +1,13 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
+using DNetCMS.Models.DataContract;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NLog;
 using NLog.Fluent;
@@ -32,6 +37,13 @@ namespace DNetCMS
             {
                 logger.Info("Standing by...");
                 var webHost = BuildWebHost(args);
+
+                using (var scope = webHost.Services.CreateScope())
+                {
+                    var services = scope.ServiceProvider;
+                    var context = services.GetService<ApplicationContext>();
+                    SeedAdmin(context);
+                }
                 
                 logger.Info("Starting application");
                 webHost.Run();
@@ -60,6 +72,39 @@ namespace DNetCMS
                 .UseNLog()
                 .Build();
 
+        public static void SeedAdmin(ApplicationContext context)
+        {
+            var claim = context.UserClaims.FirstOrDefault(x =>
+                x.ClaimType == "AccessLevel" && x.ClaimValue == "Администратор");
+            if (claim == null)
+            {
+                PasswordHasher<User> hasher = new PasswordHasher<User>();
+                
+                User admin = new User
+                {
+                    UserName = "wardef",
+                    Email = "admin@dnetcms.ru"    
+                };
+
+                admin.PasswordHash = hasher.HashPassword(admin, "father");
+
+                
+                context.Users.Add(admin);
+                context.SaveChanges();
+                
+                
+                claim = new IdentityUserClaim<string>
+                {
+                    ClaimType = "AccessLevel",
+                    ClaimValue = "Администратор",
+                    UserId = admin.Id
+                };
+                context.UserClaims.Add(claim);
+                context.SaveChanges();
+            }
+            
+        }
+        
         //public static IWebHostBuilder CreateDefaultBuilder(string[] args)
         //{
         //    var builder = new WebHostBuilder()

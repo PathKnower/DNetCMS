@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace DNetCMS.Models.DataContract
 {
-    public class ApplicationContext : IdentityDbContext<User>
+    public sealed class ApplicationContext : IdentityDbContext<User>
     {
         private bool _viewUpdatePreapred;
 
@@ -43,7 +43,9 @@ namespace DNetCMS.Models.DataContract
             int result = base.SaveChanges();
 
             if (_viewUpdatePreapred)
-                BaseViewOverrideUpdate();
+            {
+                BaseViewOverrideUpdate?.Invoke();
+            }
 
             return result;
         }
