@@ -43,7 +43,7 @@ namespace DNetCMS
             finally
             {
                 LogManager.Shutdown();
-            }
+            } 
             
         }
 
