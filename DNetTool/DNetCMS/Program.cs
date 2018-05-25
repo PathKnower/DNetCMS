@@ -74,7 +74,7 @@ namespace DNetCMS
 
         public static void SeedAdmin(ApplicationContext context)
         {
-            var claim = context.UserClaims.FirstOrDefault(x =>
+            var claim = context.RoleClaims.FirstOrDefault(x =>
                 x.ClaimType == "AccessLevel" && x.ClaimValue == "Администратор");
             if (claim == null)
             {
@@ -87,19 +87,26 @@ namespace DNetCMS
                 };
 
                 admin.PasswordHash = hasher.HashPassword(admin, "father");
+                var role = new IdentityRole("Администратор");
 
-                
+                 
+                context.Roles.Add(role);
                 context.Users.Add(admin);
                 context.SaveChanges();
+
+                var userRole = new IdentityUserRole<string>();
+                userRole.RoleId = role.Id;
+                userRole.UserId = admin.Id;
                 
-                
-                claim = new IdentityUserClaim<string>
+                claim = new IdentityRoleClaim<string>()
                 {
                     ClaimType = "AccessLevel",
                     ClaimValue = "Администратор",
-                    UserId = admin.Id
+                    RoleId = role.Id
                 };
-                context.UserClaims.Add(claim);
+
+                context.UserRoles.Add(userRole);
+                context.RoleClaims.Add(claim);
                 context.SaveChanges();
             }
             
