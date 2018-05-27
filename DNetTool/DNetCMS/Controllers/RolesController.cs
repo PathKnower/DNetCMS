@@ -131,7 +131,9 @@ namespace DNetCMS.Controllers
                     model.Claims = new SelectList(GetClaims());
                     return View(model);
                 }
-           
+
+            role = await _roleManager.FindByNameAsync(model.Name);
+            
             _logger.LogDebug("Successfull create role");
 
             _logger.LogDebug("Try to add claims");

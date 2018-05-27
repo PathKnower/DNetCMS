@@ -5,11 +5,15 @@
 }
 
 <h2>Список пользователей</h2>
-<table class="table">
+<table class="table table-bordered">
+    <tr>
+        <th>Имя</th>
+        <th></th>
+    </tr>
     @foreach (var user in Model)
     {
         <tr>
-            <td>@user.Email</td>
+            <td>@user.UserName</td>
             <td>
                 <a class="btn btn-sm btn-primary" asp-action="EditUserRole" asp-route-userid="@user.Id">Права доступа</a>
             </td>

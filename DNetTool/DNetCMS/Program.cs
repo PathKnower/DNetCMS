@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
 using DNetCMS.Models.DataContract;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
@@ -37,12 +39,14 @@ namespace DNetCMS
             {
                 logger.Info("Standing by...");
                 var webHost = BuildWebHost(args);
-
+                
                 using (var scope = webHost.Services.CreateScope())
                 {
                     var services = scope.ServiceProvider;
                     var context = services.GetService<ApplicationContext>();
-                    SeedAdmin(context);
+                    var userManager = services.GetService<UserManager<User>>();
+                    var roleManager = services.GetService<RoleManager<IdentityRole>>();
+                    SeedAdmin(context, userManager, roleManager);
                 }
                 
                 logger.Info("Starting application");
@@ -72,96 +76,28 @@ namespace DNetCMS
                 .UseNLog()
                 .Build();
 
-        public static void SeedAdmin(ApplicationContext context)
+        public static void SeedAdmin(ApplicationContext context, UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
         {
-            var claim = context.RoleClaims.FirstOrDefault(x =>
+            var claim = context.UserClaims.FirstOrDefault(x =>
                 x.ClaimType == "AccessLevel" && x.ClaimValue == "Администратор");
             if (claim == null)
             {
-                PasswordHasher<User> hasher = new PasswordHasher<User>();
-                
                 User admin = new User
                 {
                     UserName = "wardef",
                     Email = "admin@dnetcms.ru"    
                 };
-
-                admin.PasswordHash = hasher.HashPassword(admin, "father");
-                var role = new IdentityRole("Администратор");
-
-                 
-                context.Roles.Add(role);
-                context.Users.Add(admin);
-                context.SaveChanges();
-
-                var userRole = new IdentityUserRole<string>();
-                userRole.RoleId = role.Id;
-                userRole.UserId = admin.Id;
+                userManager.CreateAsync(admin, "father");
                 
-                claim = new IdentityRoleClaim<string>()
-                {
-                    ClaimType = "AccessLevel",
-                    ClaimValue = "Администратор",
-                    RoleId = role.Id
-                };
+                var role = new IdentityRole("Администратор");
+                roleManager.CreateAsync(role);
+                roleManager.AddClaimAsync(role, new Claim("AccessLevel", "Администратор"));
 
-                context.UserRoles.Add(userRole);
-                context.RoleClaims.Add(claim);
-                context.SaveChanges();
+                userManager.AddToRoleAsync(admin, "Администратор");
             }
             
         }
         
-        //public static IWebHostBuilder CreateDefaultBuilder(string[] args)
-        //{
-        //    var builder = new WebHostBuilder()
-        //        .UseKestrel((builderContext, options) =>
-        //        {
-        //            options.Configure(builderContext.Configuration.GetSection("Kestrel"));
-        //        })
-        //        .UseContentRoot(Directory.GetCurrentDirectory())
-        //        .ConfigureAppConfiguration((hostingContext, config) =>
-        //        {
-        //            var env = hostingContext.HostingEnvironment;
-
-        //            config.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-        //                  .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true);
-
-        //            if (env.IsDevelopment())
-        //            {
-        //                var appAssembly = Assembly.Load(new AssemblyName(env.ApplicationName));
-        //                if (appAssembly != null)
-        //                {
-        //                    config.AddUserSecrets(appAssembly, optional: true);
-        //                }
-        //            }
-
-        //            config.AddEnvironmentVariables();
-
-        //            if (args != null)
-        //            {
-        //                config.AddCommandLine(args);
-        //            }
-        //        })
-        //        .ConfigureLogging((hostingContext, logging) =>
-        //        {
-        //            logging.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
-        //            logging.AddConsole();
-        //            logging.AddDebug();
-        //        })
-        //        .UseIISIntegration()
-        //        .UseDefaultServiceProvider((context, options) =>
-        //        {
-        //            options.ValidateScopes = context.HostingEnvironment.IsDevelopment();
-        //        });
-
-        //    if (args != null)
-        //    {
-        //        builder.UseConfiguration(new ConfigurationBuilder().AddCommandLine(args).Build());
-        //    }
-
-        //    return builder;
-        //}
 
 
     }

@@ -38,9 +38,9 @@ namespace DNetCMS.Controllers
 
         public IActionResult Index()
         {
-            HttpContext.Items["ErrorMessage"] = "Some error message";
-            HttpContext.Items["WarningMessage"] = "Some warning message";
-            HttpContext.Items["SuccessMessage"] = "Some success message";
+//            HttpContext.Items["ErrorMessage"] = "Some error message";
+//            HttpContext.Items["WarningMessage"] = "Some warning message";
+//            HttpContext.Items["SuccessMessage"] = "Some success message";
             
             return View();
         }
