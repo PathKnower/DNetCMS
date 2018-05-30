@@ -9,15 +9,15 @@
 <h2>Загрузка файла</h2>
 
 
-<form method="post" asp-controller="Files" asp-action="UploadFile">
+<form method="post" asp-controller="Files" asp-action="UploadFile" enctype="multipart/form-data">
     <div>
-        @Html.DisplayFor(x => x.TargetUse)
-        @Html.RadioButtonFor(x => x.TargetUse, Model.Targets)
+        Сохранить как: 
+        @Html.DropDownListFor(x => x.TargetUse, Model.Targets)
         <span asp-validation-for="TargetUse"></span>
     </div>
     <div>
         @Html.DisplayFor(x => x.File)
-        @Html.EditorFor(x => x.File)
+        <input type="file" asp-for="File"/>
         <span asp-validation-for="File"></span>
     </div>    
     <div>

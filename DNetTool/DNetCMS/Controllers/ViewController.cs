@@ -137,15 +137,18 @@ namespace DNetCMS.Controllers
             viewsPath = viewsPath.Last() == '/' ? viewsPath : viewsPath.Append('/').ToString();
 
             _logger.LogDebug("Check directory existance");
-            if (Directory.Exists(_environment.WebRootPath + viewsPath))
-                Directory.CreateDirectory(_environment.WebRootPath + viewsPath);
+            if (!Directory.Exists(_environment.ContentRootPath + viewsPath))
+                Directory.CreateDirectory(_environment.ContentRootPath + viewsPath);
 
-            var fileInfo = new FileInfo($"{_environment.WebRootPath}{viewsPath}{model.ChoosenView}.cshtml");
+            var fileInfo = new FileInfo($"{_environment.ContentRootPath}{viewsPath}{model.ChoosenView}.cshtml");
             if(fileInfo.Exists)
             {
                 HttpContext.Items["ErrorMessage"] = "Файл перезаписи для данного представления уже существует.";
                 return RedirectToAction("Index");
             }
+
+            if (!Directory.Exists($"{_environment.ContentRootPath + viewsPath}/{model.ChoosenView.Split('/')[0]}"))
+                Directory.CreateDirectory($"{_environment.ContentRootPath + viewsPath}/{model.ChoosenView.Split('/')[0]}");
 
             _logger.LogDebug("Try to create file");
             try
@@ -164,7 +167,7 @@ namespace DNetCMS.Controllers
             var viewOverride = new BaseViewOverride
             {
                 View = model.ChoosenView,
-                Path = fileInfo.FullName,
+                Path = $"{viewsPath}{model.ChoosenView}.cshtml",
                 Enable = model.Enable
             };
 
@@ -189,6 +192,7 @@ namespace DNetCMS.Controllers
                 return View(model);
             }
 
+            //TODO: Fix read from file
             IEnumerable<string> temp = GetNotOverrideViews();
             if (!temp.Contains(model.ChoosenView))
             {
@@ -212,17 +216,20 @@ namespace DNetCMS.Controllers
             viewsPath = viewsPath.Last() == '/' ? viewsPath : viewsPath.Append('/').ToString();
 
             _logger.LogDebug("Check directory existance");
-            if (Directory.Exists(_environment.WebRootPath + viewsPath))
-                Directory.CreateDirectory(_environment.WebRootPath + viewsPath);
+            if (!Directory.Exists(_environment.ContentRootPath + viewsPath))
+                Directory.CreateDirectory(_environment.ContentRootPath + viewsPath);
 
             
             var oldFile = new FileInfo(viewOverride.Path);
-            var fileInfo = new FileInfo($"{_environment.WebRootPath}{viewsPath}{model.ChoosenView}.cshtml");
+            var fileInfo = new FileInfo($"{_environment.ContentRootPath}{viewsPath}{model.ChoosenView}.cshtml");
             if(fileInfo.Exists)
             {
                 HttpContext.Items["ErrorMessage"] = "Файл перезаписи для данного представления уже существует.";
                 return RedirectToAction("Index");
             }
+
+            if (!Directory.Exists($"{_environment.ContentRootPath + viewsPath}/{model.ChoosenView.Split('/')[0]}"))
+                Directory.CreateDirectory($"{_environment.ContentRootPath + viewsPath}/{model.ChoosenView.Split('/')[0]}");
 
             _logger.LogDebug("Try to create file");
             try
@@ -243,7 +250,7 @@ namespace DNetCMS.Controllers
                 oldFile.Delete();
             
             viewOverride.Enable = model.Enable;
-            viewOverride.Path = fileInfo.FullName;
+            viewOverride.Path = $"{viewsPath}{model.ChoosenView}.cshtml";
             viewOverride.View = model.ChoosenView;
 
             db.ViewOverrides.Update(viewOverride);
@@ -288,12 +295,16 @@ namespace DNetCMS.Controllers
             return RedirectToAction("Index");
         }
         
+
         
         
         private string[] GetNotOverrideViews()
         {
             string[] result = new string[]
             {
+                "Home/Index",
+                "Home/About",
+                "News/Index"
                 //TODO: Fill that after end base front end
             };
 

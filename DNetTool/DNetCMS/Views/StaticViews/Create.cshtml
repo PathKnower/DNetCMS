@@ -13,21 +13,28 @@
 </div>
 
 
-<form asp-action="Create">
-    <div>
-        @Html.DisplayFor(m => m.Name)
-        @Html.EditorFor(m => m.Name)
-        <span asp-validation-for="Name"></span>
+<div class="row">
+    <div class="col-md-12">
+        <form asp-action="Create" asp-controller="StaticViews" method="post" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group post-control__field">
+                <label class="control-label post-control__label">Имя страницы: </label>
+                <input asp-for="Name" class="form-control post-control__control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group post-control__field">
+                <label class="control-label post-control__label">Маршрут до страницы: </label>
+                <input asp-for="Route" class="form-control post-control__control" />
+                <span asp-validation-for="Route" class="text-danger"></span>
+            </div>
+            <div class="form-group post-control__field">
+                <label class="control-label post-control__label">Содержимое: </label>
+                <textarea asp-for="Content" class="form-control post-control__control post-control__textarea"></textarea>
+                <span asp-validation-for="Content" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Создать" class="btn btn-default post-control__button" />
+            </div>
+        </form>
     </div>
-    <div>
-        @Html.DisplayFor(m => m.Route)
-        @Html.EditorFor(m => m.Route)
-        <span asp-validation-for="Route"></span>
-    </div>
-    <div>
-        @Html.DisplayFor(m => m.Content)
-        @Html.EditorFor(m => m.Content)
-        <span asp-validation-for="Content"></span>
-    </div>
-    <input type="submit" value="Создать"/>
-</form>
+</div>

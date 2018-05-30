@@ -44,7 +44,8 @@ namespace DNetCMS.Controllers
             
         public IActionResult UploadFile()
         {
-            return View();
+            FileUploadViewModel model = new FileUploadViewModel();
+            return View(model);
         }
 
         [HttpPost]

@@ -100,7 +100,9 @@ namespace DNetCMS.Modules.Processing
             _logger.LogTrace("Create file entity");
             _logger.LogTrace("Try to save file on disk");
 
-            using (var fileStream = new FileStream(_environment.WebRootPath + result.Path, FileMode.Create))
+
+
+            using (var fileStream = new FileStream( result.Path, FileMode.Create))
             {
                 try
                 {

@@ -48,7 +48,7 @@
     @*     </button> *@
     @*     <a asp-controller="Home" asp-action="Index" class="navbar-brand">DNetTool</a> *@
     @* </div> *@
-    <a class="navbar-brand" asp-controller="Home" asp-action="Index">DNetTool</a>
+    <a class="navbar-brand" asp-controller="Home" asp-action="Index">DNetCMS</a>
     <div class="collapse navbar-collapse">
         <ul class="navbar-nav mr-auto my-2">
             <li class="nav-item">
@@ -61,7 +61,7 @@
                 if (User.HasClaim("AccessLevel", "Модератор") || User.HasClaim("AccessLevel", "Администратор"))
                 {
                     <li class="nav-item">
-                        <a class="nav-link active" asp-controller="Admin">Админпанель</a>
+                        <a class="nav-link active" asp-controller="Admin" asp-action="Index">Админпанель</a>
                     </li>
                 }
 

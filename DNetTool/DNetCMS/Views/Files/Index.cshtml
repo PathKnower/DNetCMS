@@ -8,7 +8,7 @@
 
 <h2>Все файлы доступные на сервере</h2>
 
-<a asp-controller="Files" asp-action="UploadFile">Загрузить файл</a>
+<a asp-controller="Files" class="btn btn-outline-primary"  asp-action="UploadFile">Загрузить файл</a>
 
 <div>
 
@@ -49,7 +49,7 @@
         <tr>
             <td>@file.Name</td>
             <td>@GetFileType(file.FileType)</td>
-            <td>@GetShortPath(file.Path)</td>
+            <td><p title="@file.Path">@GetShortPath(file.Path)</p></td>
             <td><a asp-controller="Files" asp-action="Delete" asp-route-id="@file.Id">Удалить</a></td> 
         </tr>
     }

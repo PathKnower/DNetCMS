@@ -46,7 +46,7 @@ namespace DNetCMS
                     var context = services.GetService<ApplicationContext>();
                     var userManager = services.GetService<UserManager<User>>();
                     var roleManager = services.GetService<RoleManager<IdentityRole>>();
-                    SeedAdmin(context, userManager, roleManager);
+                    SeedAdminAsync(context, userManager, roleManager).Wait();
                 }
                 
                 logger.Info("Starting application");
@@ -76,29 +76,32 @@ namespace DNetCMS
                 .UseNLog()
                 .Build();
 
-        public static void SeedAdmin(ApplicationContext context, UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
+        public static async Task SeedAdminAsync(ApplicationContext context, UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
         {
-            var claim = context.UserClaims.FirstOrDefault(x =>
-                x.ClaimType == "AccessLevel" && x.ClaimValue == "Администратор");
-            if (claim == null)
+            var role = await roleManager.FindByNameAsync("Администратор");
+            var user = await userManager.FindByNameAsync("wardef");
+            
+            if (role == null)
+            {
+                role = new IdentityRole("Администратор");
+                await roleManager.CreateAsync(role);
+                await roleManager.AddClaimAsync(role, new Claim("AccessLevel", "Администратор"));
+            }
+
+            if (user == null)
             {
                 User admin = new User
                 {
                     UserName = "wardef",
-                    Email = "admin@dnetcms.ru"    
+                    Email = "admin@dnetcms.ru"
                 };
-                userManager.CreateAsync(admin, "father");
-                
-                var role = new IdentityRole("Администратор");
-                roleManager.CreateAsync(role);
-                roleManager.AddClaimAsync(role, new Claim("AccessLevel", "Администратор"));
+                await userManager.CreateAsync(admin, "father");
 
-                userManager.AddToRoleAsync(admin, "Администратор");
+                await userManager.AddToRoleAsync(admin, "Администратор");
             }
             
+            if(!(await userManager.IsInRoleAsync(user, "Администратор")))
+                await userManager.AddToRoleAsync(user, "Администратор");
         }
-        
-
-
     }
 }

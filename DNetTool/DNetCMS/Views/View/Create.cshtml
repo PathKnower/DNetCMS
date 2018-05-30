@@ -14,23 +14,26 @@
 
 <div class="row">
     <div class="col-md-12">
-        <form method="post" asp-action="Create">
-            <div>
-                @Html.DisplayFor(m => m.ChoosenView)
+        <form asp-action="Create" asp-controller="View" method="post" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group post-control__field">
+                <label class="control-label post-control__label">Маршрут страницы: </label>
                 @Html.DropDownListFor(m => m.ChoosenView, Model.Views)
-                <span asp-validation-for="ChoosenView"></span>
+                <span asp-validation-for="ChoosenView" class="text-danger"></span>
             </div>
-            <div>
-                @Html.DisplayFor(m => m.Code)
-                @Html.EditorFor(m => m.Code)
-                <span asp-validation-for="Code"></span>
+            <div class="form-group post-control__field">
+                <label class="control-label post-control__label">Активировать после создания? </label>
+                <input type="checkbox" asp-for="Enable" class="form-control post-control__control" />
+                <span asp-validation-for="Enable" class="text-danger"></span>
             </div>
-            <div>
-                @Html.DisplayFor(m => m.Enable)
-                @Html.EditorFor(m => m.Enable)
-                <span asp-validation-for="Enable"></span>
+            <div class="form-group post-control__field">
+                <label class="control-label post-control__label">Содержимое: </label>
+                <textarea asp-for="Code" class="form-control post-control__control post-control__textarea"></textarea>
+                <span asp-validation-for="Code" class="text-danger"></span>
             </div>
-            <input type="submit" value="Создать"/>
+            <div class="form-group">
+                <input type="submit" value="Создать" class="btn btn-default post-control__button" />
+            </div>
         </form>
     </div>
 </div>

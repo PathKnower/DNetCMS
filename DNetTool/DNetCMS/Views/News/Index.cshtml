@@ -10,7 +10,7 @@
 <h3>Все доступные новости</h3>
 
 <p>
-    <a class="btn btn-outline-primary" asp-action="Create" asp-controller="News" >Рассказать миру кое-что новое!</a>
+    <a class="btn btn-outline-primary" asp-action="Create" asp-controller="News" >Создать новость!</a>
 </p>
 <table class="table">
     <thead>
@@ -34,10 +34,13 @@
          {
              <tr>
                  <td>
-                     @Html.DisplayFor(modelItem => item.Header)
+                     @item.Header
                  </td>
                  <td>
-                     @* @Html.DisplayFor(modelItem => item.CreateDate.ToString()) *@
+                      @item.CreateDate.ToShortDateString()
+                 </td>
+                 <td>
+                     @item.Author.UserName
                  </td>
                  <td>
                      <a asp-action="Edit" asp-route-id="@item.Id">Изменить</a> |

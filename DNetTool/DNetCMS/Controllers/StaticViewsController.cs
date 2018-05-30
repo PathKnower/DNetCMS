@@ -33,6 +33,9 @@ namespace DNetCMS.Controllers
             _environment = environment;
             _configuration = configuration;
             _logger = logger;
+
+            if (!Directory.Exists(_environment.ContentRootPath + $"/Generic/"))
+                Directory.CreateDirectory(_environment.ContentRootPath + $"/Generic/");
         }
 
         public IActionResult Index()
@@ -85,13 +88,13 @@ namespace DNetCMS.Controllers
                 return View(model);
 
             string routeEnd = model.Route.Split('/').Last();
-            if (!string.IsNullOrWhiteSpace(routeEnd))
+            if (string.IsNullOrWhiteSpace(routeEnd))
             {
                 ModelState.AddModelError("Route", "Не указано имя файла. (Имя файла = последнее слово маршрута не считая \"/\").");
                 return View(model);
             }
 
-            FileInfo staticView = new FileInfo(_environment.WebRootPath + $"/Generic/{model.Route}.html");
+            FileInfo staticView = new FileInfo(_environment.ContentRootPath + $"/Generic/{model.Route}.cshtml");
             if (staticView.Exists)
             {
                 ModelState.AddModelError("Route", "Данный файл уже существует.");
@@ -104,7 +107,7 @@ namespace DNetCMS.Controllers
             string[] dirs = model.Route.Split('/');
             if (dirs.Length > 1)
             {
-                string fullPath = _environment.WebRootPath + "/Generic/";
+                string fullPath = _environment.ContentRootPath + "/Generic/";
                 for (int i = 0; i < dirs.Length - 1; i++)
                 {
                     fullPath += (dirs[i] + "/");
@@ -115,21 +118,20 @@ namespace DNetCMS.Controllers
             }
             
             
-            staticView.Create();
             if (WriteToFile(model.Content, staticView.FullName))
             {
                 StaticView view = new StaticView
                 {
                     Name = model.Name,
                     Route = model.Route,
-                    Path = staticView.FullName
+                    Path = $"/Generic/{model.Route}.cshtml"
                 };
                 
                 _logger.LogDebug("Try to create static page with params = {@view}", view);
                 await db.StaticViews.AddAsync(view);
                 await db.SaveChangesAsync();
                 _logger.LogDebug("Create static view action success!");
-                HttpContext.Items["SuccessMessage"] = "";
+                HttpContext.Items["SuccessMessage"] = "Создание статической страницы успешно завершено!";
             }
             else
                 HttpContext.Items["ErrorMessage"] = "Не удалось создать файл статической страницы, проверьте ваши права доступа";
@@ -144,7 +146,7 @@ namespace DNetCMS.Controllers
                 return View(model);
 
             string routeEnd = model.Route.Split('/').Last();
-            if (!string.IsNullOrWhiteSpace(routeEnd))
+            if (string.IsNullOrWhiteSpace(routeEnd))
             {
                 ModelState.AddModelError("Route", "Не указано имя файла. (Имя файла = последнее слово маршрута не считая \"/\").");
                 return View(model);
@@ -161,7 +163,7 @@ namespace DNetCMS.Controllers
             _logger.LogDebug("Edit static view action started with model = {@model}", model);
             
             _logger.LogDebug("Check new file location");
-            FileInfo staticView = new FileInfo(_environment.WebRootPath + $"/Generic/{model.Route}.html");
+            FileInfo staticView = new FileInfo(_environment.ContentRootPath + $"/Generic/{model.Route}.cshtml");
             if (view.Path != $"/Generic/{model.Route}.html")
             {
                 if (staticView.Exists)
@@ -174,7 +176,7 @@ namespace DNetCMS.Controllers
                 string[] dirs = model.Route.Split('/');
                 if (dirs.Length > 1)
                 {
-                    string fullPath = _environment.WebRootPath + "/Generic/";
+                    string fullPath = _environment.ContentRootPath + "/Generic/";
                     for (int i = 0; i < dirs.Length - 1; i++)
                     {
                         fullPath += (dirs[i] + "/");
@@ -186,7 +188,7 @@ namespace DNetCMS.Controllers
                 staticView.Create();
 
                 _logger.LogDebug("Delete old file");
-                FileInfo oldView = new FileInfo(_environment.WebRootPath + view.Path);
+                FileInfo oldView = new FileInfo(view.Path);
                 if(oldView.Exists)
                     oldView.Delete();
             }
@@ -196,7 +198,7 @@ namespace DNetCMS.Controllers
             if(WriteToFile(model.Content, staticView.FullName))
             {
                 view.Name = model.Name;
-                view.Path = staticView.FullName;
+                view.Path = $"/Generic/{model.Route}.cshtml";
                 view.Route = model.Route;
                 _logger.LogDebug("Success writing to file. Update the view");
                 db.StaticViews.Update(view);
